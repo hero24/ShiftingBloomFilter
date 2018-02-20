@@ -11,6 +11,7 @@ class CSVDataSet:
         csvs = self.file.readline().strip().split(self.separator)
         if len(csvs) > 1:
             return csvs
+        self.file.seek(0)
         raise StopIteration
 
     def __iter__(self):

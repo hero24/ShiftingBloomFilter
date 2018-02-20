@@ -7,14 +7,14 @@ class ShiftingBloomFilter:
     def __init__(self, length,hash_count=len(algorithms_guaranteed)):
         self.m = length
         self.k = hash_count
-        self.cut_off = int(self.k/2)
+        self.cut_off = int(self.k//2)
         self.hashfunc = [getattr(hashlib,h) for h in algorithms_guaranteed]
         self.hashfunc = self.hashfunc[0:self.k]
         self.filter = bytearray(self.m)
         self.max_set = 0
 
-    def _get_hash(self,h,s,offset=0):
-        return (int.from_bytes(h(s.encode()).digest(), byteorder)+ offset) % self.m
+    def _get_hash(self,h,s,offset):
+        return (int.from_bytes(h(s.encode()).digest(), byteorder) + offset ) % self.m
 
     def _set_position(self,h,item,set_no=0):
         self.filter[self._get_hash(h,item,set_no)] = 1
@@ -42,7 +42,7 @@ class ShiftingBloomFilter:
         while self.max_set >= set_no:
             found = True
             for h in self.hashfunc[self.cut_off:]:
-                if not self._check_position(h,item,set_no): 
+                if not self._check_position(h,item,set_no):
                     found = False
                     break
             if found:
