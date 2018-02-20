@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import hashlib
 from hashlib import algorithms_guaranteed
 from sys import byteorder
