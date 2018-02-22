@@ -2,6 +2,7 @@
 import hashlib
 from hashlib import algorithms_guaranteed
 from sys import byteorder
+from inspect import signature
 
 class ShiftingBloomFilter:
     def __init__(self, length,hash_count=len(algorithms_guaranteed)):
@@ -14,7 +15,15 @@ class ShiftingBloomFilter:
         self.max_set = 0
 
     def _get_hash(self,h,s,offset):
-        return (int.from_bytes(h(s.encode()).digest(), byteorder) + offset ) % self.m
+        hashed_value = h(s.encode())
+        try:
+            if len(signature(hashed_value.digest).parameters) > 0:
+                hashed_value = hashed_value.digest(100)
+            else:
+                hashed_value = hashed_value.digest()
+        except ValueError:
+            hashed_value = hashed_value.digest()
+        return (int.from_bytes(hashed_value, byteorder) + offset ) % self.m
 
     def _set_position(self,h,item,set_no=0):
         self.filter[self._get_hash(h,item,set_no)] = 1
