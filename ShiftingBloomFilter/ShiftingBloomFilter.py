@@ -6,6 +6,12 @@ from inspect import signature
 
 class ShiftingBloomFilter:
     def __init__(self, length,hash_count=len(algorithms_guaranteed)):
+        """
+        ShiftingBlomFilter(
+            length => the size of the underlying bytearray representing the filter
+            hash_count => amount of hashing functions to use. NOTE: cannot be greater than length of algorithms_guaranteed
+        )
+        """
         self.m = length
         self.k = hash_count
         self.cut_off = int(self.k//2)
@@ -17,6 +23,7 @@ class ShiftingBloomFilter:
     def _get_hash(self,h,s,offset):
         hashed_value = h(s.encode())
         try:
+            # temporary work around => FIX later;
             if len(signature(hashed_value.digest).parameters) > 0:
                 hashed_value = hashed_value.digest(100)
             else:
