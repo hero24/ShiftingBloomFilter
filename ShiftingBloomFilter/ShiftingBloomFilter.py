@@ -5,7 +5,7 @@ from sys import byteorder
 from inspect import signature
 from .Exceptions import HashesUnavailableError, ERROR_MSGS
 class ShiftingBloomFilter:
-    def __init__(self, length,hash_count=len(algorithms_guaranteed)):
+    def __init__(self, length,hash_count=len(algorithms_guaranteed),hash_source=algorithms_guaranteed):
         """
         ShiftingBlomFilter(
             length => the size of the underlying bytearray which is used to
@@ -15,7 +15,7 @@ class ShiftingBloomFilter:
                                                     of algorithms_guaranteed
         )
         """
-        if hash_count > len(algorithms_guaranteed):
+        if hash_count > len(hash_source):
             raise HashesUnavailableError(ERROR_MSGS.NOT_ENNOUGH_HASHES)
         self.m = length
         self.k = hash_count
