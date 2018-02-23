@@ -7,6 +7,12 @@ from random import randint
         - CSVDataSet => a reader for data sets stored as CSV files
         - RandomStringGenerator => object used for generating random strings
 """
+
+class HashFactory:
+    def __init__(self,hash_family, hash_count):
+        self.hash_family
+        self.hash_count
+        
 class CSVDataSet:
     """
         Iterative reader for csv data sets.
