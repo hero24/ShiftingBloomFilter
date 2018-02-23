@@ -3,7 +3,7 @@ import hashlib
 from hashlib import algorithms_guaranteed
 from sys import byteorder
 from inspect import signature
-
+from .Exceptions import HashesUnavailableError, ERROR_MSGS
 class ShiftingBloomFilter:
     def __init__(self, length,hash_count=len(algorithms_guaranteed)):
         """
@@ -15,6 +15,8 @@ class ShiftingBloomFilter:
                                                     of algorithms_guaranteed
         )
         """
+        if hash_count > len(algorithms_guaranteed):
+            raise HashesUnavailableError(ERROR_MSGS.NOT_ENNOUGH_HASHES)
         self.m = length
         self.k = hash_count
         self.cut_off = int(self.k//2)

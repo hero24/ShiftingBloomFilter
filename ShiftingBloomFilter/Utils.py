@@ -49,7 +49,7 @@ class RandomStringGenerator:
         RandomStringGenerator, a stream of random strings of given length.
     """
     def __init__(self,string_length=4,ascii_start=32,
-                      ascii_end=126,stream_length=...):i
+                      ascii_end=126,stream_length=...):
         """
             RandomStringGenerator(
                 string_length => generate strings of this length
@@ -72,7 +72,7 @@ class RandomStringGenerator:
             returns length of the stream or 
             stream length so far for infinite streams
         """
-        return self.len if self.len is not ... else return self.count
+        return self.len if self.len is not ... else self.count
 
     def __next__(self):
         """
