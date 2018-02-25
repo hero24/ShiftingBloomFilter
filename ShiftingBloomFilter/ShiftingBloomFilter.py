@@ -24,6 +24,9 @@ class ShiftingBloomFilter:
         self.hashfunc = self.hashfunc[0:self.k]
         self.filter = bytearray(self.m)
         self.max_set = 0
+        
+    def __len__(self):
+        return self.m
 
     def _get_hash(self,h,s,offset):
         """
