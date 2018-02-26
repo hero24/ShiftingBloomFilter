@@ -1,7 +1,12 @@
 import tkinter as tk
 from .. import ShiftingBloomFilter
 from collections import OrderedDict
+
 class COLOR_PALLETTE:
+    """
+        COLOR PALLETTE for visualiser gui.
+        Colors defined as constants using hex color codes
+    """
     GREEN = "#baffc9"
     BLUE = "#b8f1fd"
     ORANGE = "#ffe2be"
@@ -12,7 +17,15 @@ class COLOR_PALLETTE:
     YELLOW = "#fbb40c"
 
 class DLabel(tk.Label):
+    """
+        tk.Label bound to StringVar
+    """
     def __init__(self,*args,**kwargs):
+        """
+            DLabel(
+                [initial_value] => create a label with this text
+            )
+        """
         self.strvar = tk.StringVar()
         if "initial_value" in kwargs:
             self.set(kwargs["initial_value"])
@@ -21,21 +34,39 @@ class DLabel(tk.Label):
         self["textvariable"] = self.strvar
 
     def set(self,s):
+        """
+            (void) set the value of StringVar to s
+            set(
+                s => change label to s
+            )
+        """
         self.strvar.set(str(s))
 
     def get(self):
+        """
+           (string) returns string represented in the label
+        """
         self.strvar.get()
 
 class Info(tk.Frame):
+        """
+            Frame with explanation of meanings of colors used
+        """
         def __init__(self,master,
                      color_description=OrderedDict([
                         (COLOR_PALLETTE.GREEN , "Empty field"),
-                        #(COLOR_PALLETTE.BLUE  , "Empty field"),
                         (COLOR_PALLETTE.RED   , "Field occupied"),
                         (COLOR_PALLETTE.ORANGE, "Field occupied by offset bit"),
                         (COLOR_PALLETTE.YELLOW, "Field set"),
                         (COLOR_PALLETTE.PURPLE, "Field set by offset bit")
                         ])):
+            """
+                Info(
+                    master => parent window
+                    color_description => dict of color codes (key)
+                                                    and descriptions (values)
+                )
+            """
             super().__init__(master,borderwidth=2,relief="groove")
             for row,key in enumerate(color_description):
                 l = DLabel(self,background=key,
@@ -43,16 +74,40 @@ class Info(tk.Frame):
                 l.grid(row=row,sticky=tk.W+tk.E)
 
 class Out(tk.Frame):
+    """
+        Output frame for displaying output messages 
+    """
     def __init__(self,master):
+        """
+            Out(
+                master => parent window
+            )
+        """
         super().__init__(master)
         self.output_label = DLabel(self)
         self.output_label.grid(row=0, sticky=tk.W+tk.E)
 
     def set_out(self,out_s):
+        """
+            (void) sets the output field to display given message
+            set_out(
+                out_s => message to display
+            )
+        """
         self.output_label.set(out_s)
 
 class Filter(tk.Frame):
-    def __init__(self,master,out=None,length=25):
+    """
+        Frame containg and displaying the filter.
+    """
+    def __init__(self,master,out,length=25):
+        """
+            Filter(
+                master => parent window
+                out    => message output frame
+                length => length of the filter to create and display
+            )
+        """
         super().__init__(master, borderwidth=2, relief="sunken")
         self.length = length
         self.bloom = ShiftingBloomFilter(length=length)
@@ -69,19 +124,28 @@ class Filter(tk.Frame):
                                                                 sticky=tk.S)
         for i in range(length):
             color = COLOR_PALLETTE.GREEN
-            #if i > self.bloom.cut_off:
-            #    color = COLOR_PALLETTE.BLUE
             label = DLabel(self, background=color,initial_value=0)
             label.grid(row=0,column=i)
             self.cells.append(label)
 
     def refresh(self):
+        """
+            (void) refreshes (resets) the display of the filter
+        """
         for i in range(self.length):
             if self.bloom.filter[i] == 1:
                 self._set_cell(i)
 
     def _set_cell(self,cell_id,to=1,
                   bg=(COLOR_PALLETTE.RED,COLOR_PALLETTE.ORANGE)):
+        """
+            (void) sets cell in bloom filter display
+            _set_cell(
+                cell_id => cell index to change
+                to      => value to change the cell to
+                bg      => tuple of color codes to use for highlighting
+            )
+        """
         bg, aftercut = bg
         if cell_id > self.bloom.cut_off:
             bg = aftercut
@@ -89,15 +153,29 @@ class Filter(tk.Frame):
         self.cells[cell_id].config(bg=bg)
 
     def _insert(self):
+        """
+            (callback) (void)
+            Insert value from entry field into the bloom filter and refresh
+            the display.
+        """
         self.bloom.insert(self.entry.get())
         self.refresh()
 
     def _clear(self):
+        """
+            (callback) (void)
+            Clears the Bloom Filter and the display of it.
+        """
         self.bloom = ShiftingBloomFilter(self.length)
         for i in range(self.length):
             self._set_cell(i,to=0,bg=(COLOR_PALLETTE.GREEN,COLOR_PALLETTE.BLUE))
 
     def _check(self):
+        """
+            (callback) (void)
+            Checks if item stored in entry label is in the set, and if it is
+            highlights the bits belonging to the item.
+        """
         self.refresh()
         is_in, sets = self.bloom.check(self.entry.get())
         self.out.set_out("Item is %sin the set" % ("" if is_in else "not "))
@@ -114,7 +192,16 @@ class Filter(tk.Frame):
 
 
 class Main(tk.Tk):
+    """
+        Main window of Visualiser
+    """
     def __init__(self,title="ShiftingBloomFilter Visualiser",length=25):
+        """
+            Main(
+                title  => title for visualiser window
+                length => length of the filter
+            )
+        """
         super().__init__()
         self.title(title)
         self.out = Out(self)
@@ -127,6 +214,11 @@ class Main(tk.Tk):
 
     @staticmethod
     def run(title="ShiftingBloomFilter Visualiser",length=25):
+        """
+            (static) (void)
+            Instanciates main window of visualiser and runs it.
+
+        """
         window = Main(title,length)
         window.mainloop()
 
