@@ -180,7 +180,8 @@ class Filter(tk.Frame):
         """
         self.bloom = self._construct_bloom() 
         for i in range(self.length):
-            self._set_cell(i,to=0,bg=(COLOR_PALLETTE.GREEN,COLOR_PALLETTE.BLUE))
+            self._set_cell(i,to=0,bg=(COLOR_PALLETTE.GREEN,
+                                      COLOR_PALLETTE.GREEN))
 
     def _check(self):
         """

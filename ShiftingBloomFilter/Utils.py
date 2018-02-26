@@ -12,7 +12,18 @@ from .Exceptions import ERROR_MSGS, HashesUnavailableError
 """
 
 class HashFactory:
+    """
+        Object for creating salted hash functions. 
+        Produces a list of hash functions that can be used 
+        with ShiftingBloomFilter.
+    """
     def __init__(self,hash_family, hash_count):
+        """
+            HashFactory(
+                hash_family => a base for hash functions from hashlib
+                hash_count  => number of hash functions to generate
+            )
+        """
         if hash_family not in algorithms_guaranteed:
             raise HashesUnavailableError(ERROR_MSGS.HASH_FUNCTION_UNAVAILABLE) 
         self.hash_family = hash_family
@@ -20,19 +31,37 @@ class HashFactory:
         self.hash_count = hash_count
         self.salts = []
         self.hash_funcs = []
-        for salt in RandomStringGenerator(stream_length=hash_count):
+        for salt in RandomStringGenerator(stream_length=hash_count): 
             self.salts.append(salt)
-            def h_func(s):
-                return self.hash_base(s+salt.encode())
+            h_func = lambda s,salt=salt: self.hash_base(s+salt.encode())
             self.hash_funcs.append(h_func)
         self.index = 0
 
+    def __len__(self):
+        """
+            Length of the list with hash functions
+        """
+        return len(self.hash_funcs)
+
     def __iter__(self):
+        """
+            Iterator for hash function list
+        """
         return self
 
+    def __getitem__(self,val):
+        """
+            Slicing support for the function list
+        """
+        return self.hash_funcs[val]
+
     def __next__(self):
-        if self.i < self.hash_count:
-            return self.hash_funcs[self.i]
+        """
+            Next function in the iterator.
+        """
+        if self.index < self.hash_count:
+            self.index += 1
+            return self.hash_funcs[self.index]
         raise StopIteration
         
 class CSVDataSet:
