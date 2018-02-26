@@ -100,17 +100,29 @@ class Filter(tk.Frame):
     """
         Frame containg and displaying the filter.
     """
-    def __init__(self,master,out,length=25):
+    def __init__(self,master,out,length=25,hash_source=None,hash_count=None):
         """
             Filter(
                 master => parent window
                 out    => message output frame
                 length => length of the filter to create and display
+                hash_source => specify other than default hash source,
+                                        requires hash_count to be specifed too
+                hash_count => specify amount of hases in the source
             )
         """
         super().__init__(master, borderwidth=2, relief="sunken")
         self.length = length
-        self.bloom = ShiftingBloomFilter(length=length)
+        if hash_source and hash_count:
+            def _construct_bloom():
+                return ShiftingBloomFilter(length=length,
+                                           hash_source=hash_source,
+                                           hash_count=hash_count)
+        else:
+            def _construct_bloom():
+                return ShiftingBloomFilter(length=length)
+        self._construct_bloom = _construct_bloom
+        self.bloom = self._construct_bloom()
         self.cells = []
         self.entry = tk.Entry(self)
         self.out = out
@@ -166,7 +178,7 @@ class Filter(tk.Frame):
             (callback) (void)
             Clears the Bloom Filter and the display of it.
         """
-        self.bloom = ShiftingBloomFilter(self.length)
+        self.bloom = self._construct_bloom() 
         for i in range(self.length):
             self._set_cell(i,to=0,bg=(COLOR_PALLETTE.GREEN,COLOR_PALLETTE.BLUE))
 
@@ -195,7 +207,8 @@ class Main(tk.Tk):
     """
         Main window of Visualiser
     """
-    def __init__(self,title="ShiftingBloomFilter Visualiser",length=25):
+    def __init__(self,title="ShiftingBloomFilter Visualiser",length=25,
+                                    hash_count=None, hash_source=None):
         """
             Main(
                 title  => title for visualiser window
@@ -205,7 +218,8 @@ class Main(tk.Tk):
         super().__init__()
         self.title(title)
         self.out = Out(self)
-        self.filter = Filter(self,out=self.out,length=length)
+        self.filter = Filter(self,out=self.out,length=length,
+                             hash_source=hash_source, hash_count=hash_count)
         self.info = Info(self)
         self.filter.grid(row=0,column=1,sticky=tk.N+tk.S)
         self.info.grid(row=0,column=0)

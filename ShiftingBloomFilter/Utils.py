@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 from random import randint
+from hashlib import algorithms_guaranteed
+import hashlib
+from .Exceptions import ERROR_MSGS, HashesUnavailableError
 """
     Utilities for working with ShiftingBloomFilter
     mainly used for testing while developing the filter.
@@ -10,8 +13,27 @@ from random import randint
 
 class HashFactory:
     def __init__(self,hash_family, hash_count):
-        self.hash_family
-        self.hash_count
+        if hash_family not in algorithms_guaranteed:
+            raise HashesUnavailableError(ERROR_MSGS.HASH_FUNCTION_UNAVAILABLE) 
+        self.hash_family = hash_family
+        self.hash_base = getattr(hashlib,hash_family)
+        self.hash_count = hash_count
+        self.salts = []
+        self.hash_funcs = []
+        for salt in RandomStringGenerator(stream_length=hash_count):
+            self.salts.append(salt)
+            def h_func(s):
+                return self.hash_base(s+salt.encode())
+            self.hash_funcs.append(h_func)
+        self.index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.i < self.hash_count:
+            return self.hash_funcs[self.i]
+        raise StopIteration
         
 class CSVDataSet:
     """

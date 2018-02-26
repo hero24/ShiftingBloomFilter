@@ -5,14 +5,16 @@ from sys import byteorder
 from inspect import signature
 from .Exceptions import HashesUnavailableError, ERROR_MSGS
 class ShiftingBloomFilter:
-    def __init__(self, length,hash_count=len(algorithms_guaranteed),hash_source=algorithms_guaranteed):
+    def __init__(self, length,hash_count=len(algorithms_guaranteed),
+                                 hash_source=algorithms_guaranteed):
         """
         ShiftingBlomFilter(
             length => the size of the underlying bytearray which is used to
                                                     represent the filter.
             hash_count => amount of hashing functions to use. 
                           NOTE: cannot be greater than length 
-                                                    of algorithms_guaranteed
+                                                    of hash source
+            hash_source => a list of hashing functions to use
         )
         """
         if hash_count > len(hash_source):
@@ -20,7 +22,8 @@ class ShiftingBloomFilter:
         self.m = length
         self.k = hash_count
         self.cut_off = int(self.k//2)
-        self.hashfunc = [getattr(hashlib,h) for h in algorithms_guaranteed]
+        self.hashfunc = ([getattr(hashlib,h) for h in algorithms_guaranteed] 
+                    if hash_source is algorithms_guaranteed else hash_source)
         self.hashfunc = self.hashfunc[0:self.k]
         self.filter = bytearray(self.m)
         self.max_set = 0

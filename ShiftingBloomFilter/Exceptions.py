@@ -2,6 +2,7 @@
 class ERROR_MSGS:
     NOT_ENNOUGH_HASHES = ("The value given for hash_count exceeds " 
                          "amount of available hash functions")
+    HASH_FUNCTION_UNAVAILABLE = "Given hash funtion is unavailable"
 
 class HashesUnavailableError(ValueError):
     def __init__(self,message):
