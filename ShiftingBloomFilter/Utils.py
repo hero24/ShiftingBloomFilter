@@ -30,8 +30,8 @@ class HashFactory:
         self.hash_base = getattr(hashlib,hash_family)
         self.hash_count = hash_count
         self.salts = []
-        self.hash_funcs = []
-        for salt in RandomStringGenerator(stream_length=hash_count): 
+        self.hash_funcs = [] 
+        for salt in RandomStringGenerator(stream_length=hash_count):
             self.salts.append(salt)
             h_func = lambda s,salt=salt: self.hash_base(s+salt.encode())
             self.hash_funcs.append(h_func)
@@ -135,12 +135,12 @@ class RandomStringGenerator:
         """
             returns next string in the stream.
         """
+        self.count += 1
         if self.len is not ... and self.count > self.len:
             raise StopIteration
         s = ""
         for _ in range(self.length):
             s += chr(randint(self.start,self.end))
-        self.count += 1
         return s
 
     def __iter__(self):

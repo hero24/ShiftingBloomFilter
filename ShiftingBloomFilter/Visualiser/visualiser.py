@@ -68,10 +68,18 @@ class Info(tk.Frame):
                 )
             """
             super().__init__(master,borderwidth=2,relief="groove")
+            self.boolean = tk.BooleanVar()
             for row,key in enumerate(color_description):
+                check_box = tk.Checkbutton(self,variable=self.boolean,
+                                           command=self.toggle)
                 l = DLabel(self,background=key,
                                 initial_value=color_description[key])
-                l.grid(row=row,sticky=tk.W+tk.E)
+                #check_box.grid(column=0,row=row)
+                l.grid(column=1,row=row,sticky=tk.W+tk.E)
+
+
+        def toggle(self):
+            print(self.boolean.get())
 
 class Out(tk.Frame):
     """

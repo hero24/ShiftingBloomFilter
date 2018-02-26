@@ -21,7 +21,7 @@ class ShiftingBloomFilter:
             raise HashesUnavailableError(ERROR_MSGS.NOT_ENNOUGH_HASHES)
         self.m = length
         self.k = hash_count
-        self.cut_off = int(self.k//2)
+        self.cut_off = self.k//2
         self.hashfunc = ([getattr(hashlib,h) for h in algorithms_guaranteed] 
                     if hash_source is algorithms_guaranteed else hash_source)
         self.hashfunc = self.hashfunc[0:self.k]
