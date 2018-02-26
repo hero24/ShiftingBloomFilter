@@ -52,7 +52,7 @@ class Info(tk.Frame):
         """
             Frame with explanation of meanings of colors used
         """
-        def __init__(self,master,
+        def __init__(self,master,options,
                      color_description=OrderedDict([
                         (COLOR_PALLETTE.GREEN , "Empty field"),
                         (COLOR_PALLETTE.RED   , "Field occupied"),
@@ -68,18 +68,16 @@ class Info(tk.Frame):
                 )
             """
             super().__init__(master,borderwidth=2,relief="groove")
-            self.boolean = tk.BooleanVar()
+            self.options = options
             for row,key in enumerate(color_description):
-                check_box = tk.Checkbutton(self,variable=self.boolean,
-                                           command=self.toggle)
                 l = DLabel(self,background=key,
                                 initial_value=color_description[key])
-                #check_box.grid(column=0,row=row)
                 l.grid(column=1,row=row,sticky=tk.W+tk.E)
-
-
-        def toggle(self):
-            print(self.boolean.get())
+                if key == COLOR_PALLETTE.GREEN:
+                    continue
+                check_box = tk.Checkbutton(self,variable=self.options[key],
+                         command=lambda: master.filter.refresh())
+                check_box.grid(column=0,row=row)
 
 class Out(tk.Frame):
     """
@@ -108,7 +106,7 @@ class Filter(tk.Frame):
     """
         Frame containg and displaying the filter.
     """
-    def __init__(self,master,out,length=25,hash_source=None,hash_count=None):
+    def __init__(self,master,out,options,length=25,hash_source=None,hash_count=None):
         """
             Filter(
                 master => parent window
@@ -121,6 +119,7 @@ class Filter(tk.Frame):
         """
         super().__init__(master, borderwidth=2, relief="sunken")
         self.length = length
+        self.options = options
         if hash_source and hash_count:
             def _construct_bloom():
                 return ShiftingBloomFilter(length=length,
@@ -169,6 +168,8 @@ class Filter(tk.Frame):
         bg, aftercut = bg
         if cell_id > self.bloom.cut_off:
             bg = aftercut
+        if not self.options[bg].get():
+            bg = COLOR_PALLETTE.GREEN
         self.cells[cell_id].set(to)
         self.cells[cell_id].config(bg=bg)
 
@@ -225,11 +226,17 @@ class Main(tk.Tk):
             )
         """
         super().__init__()
+        self.options = OrderedDict([(COLOR_PALLETTE.GREEN , tk.BooleanVar()),
+                                    (COLOR_PALLETTE.RED   , tk.BooleanVar()),
+                                    (COLOR_PALLETTE.ORANGE, tk.BooleanVar()),
+                                    (COLOR_PALLETTE.YELLOW, tk.BooleanVar()),
+                                    (COLOR_PALLETTE.PURPLE, tk.BooleanVar())
+            ])
         self.title(title)
         self.out = Out(self)
-        self.filter = Filter(self,out=self.out,length=length,
+        self.filter = Filter(self,out=self.out,options=self.options,length=length,
                              hash_source=hash_source, hash_count=hash_count)
-        self.info = Info(self)
+        self.info = Info(self,options=self.options)
         self.filter.grid(row=0,column=1,sticky=tk.N+tk.S)
         self.info.grid(row=0,column=0)
         self.out.grid(row=1,columnspan=2)
