@@ -106,8 +106,8 @@ class HashFactory:
         self.index += 1
         if self.index < self.hash_count:
             return self.hash_funcs[self.index]
-        raise StopIteration
         self.index = -1
+        raise StopIteration
         
 class CSVDataSet:
     """
