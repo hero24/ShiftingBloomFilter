@@ -39,20 +39,32 @@ class HashFactory:
             self.doubles = 0
             self._gen_hashes(doubles)
 
-    def save2file(self,filename="hash_data"):
+    def save2file(self,filename="hash_data.bin"):
+        ###
+        # redirect error to stdout or raise specific exception
+        ###
         try:
             from dill import dump
-            dump(self,open("filename","wb"))
+            filehandle = open(filename,"wb")
+            dump(self,filehandle)
+            filehandle.close()
         except ImportError:
             print("[**] Dill is required to serilize hash factory object")
-        """
+        except IOError:
+            print("[**] Problem with saving/creating file")
 
-        filehandle = open(filename,"w")
-        filehandle.write("Hash family: %s\n"%self.hash_family)
-        for salt in self.salts:
-            filehandle.write("%s\n" % salt)
-        filehandle.close()
-        """
+    @staticmethod
+    def load_from_file(filename):
+        try:
+            from dill import load
+            datafile = open(filename,"rb")
+            hash_src = load(datafile)
+            datafile.close()
+            return hash_src
+        except ImportError:
+            print("[**] Dill is required to serilize hash factory object")
+        except IOError:
+            print("[**] Problem with saving/creating file")
 
     def _gen_hashes(self, hash_count):
         """
