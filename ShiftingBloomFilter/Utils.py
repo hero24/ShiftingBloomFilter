@@ -3,6 +3,7 @@ from random import randint
 from hashlib import algorithms_guaranteed
 import hashlib
 from .Exceptions import ERROR_MSGS, HashesUnavailableError
+
 """
     Utilities for working with ShiftingBloomFilter
     mainly used for testing while developing the filter.
@@ -30,12 +31,35 @@ class HashFactory:
         self.hash_base = getattr(hashlib,hash_family)
         self.hash_count = hash_count
         self.salts = []
-        self.hash_funcs = [] 
+        self.hash_funcs = []
+        self.doubles = 0
+        self.index = 0
+        self._gen_hashes(hash_count)
+        while self.doubles > 0:
+            self.doubles = 0
+            self._gen_hashes(doubles)
+
+    def save2file(self,filename="hash_data"):
+        filehandle = open(filename,"w")
+        filehandle.write("Hash family: %s\n"%self.hash_family)
+        for salt in self.salts:
+            filehandle.write("%s\n" % salt)
+        filehandle.close()
+
+    def _gen_hashes(self, hash_count):
+        """
+            _gen_hashes(
+                hash_count => amount of hash functions to generate
+            )
+            generate hash functions with random salts that are all different
+        """
         for salt in RandomStringGenerator(stream_length=hash_count):
+            if salt in self.salts:
+                self.doubles += 1
+                continue
             self.salts.append(salt)
             h_func = lambda s,salt=salt: self.hash_base(s+salt.encode())
             self.hash_funcs.append(h_func)
-        self.index = 0
 
     def __len__(self):
         """
