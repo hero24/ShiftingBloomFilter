@@ -4,6 +4,7 @@ from hashlib import algorithms_guaranteed
 from sys import byteorder
 from inspect import signature
 from .Exceptions import HashesUnavailableError, ERROR_MSGS
+
 class ShiftingBloomFilter:
     def __init__(self, length,hash_count=len(algorithms_guaranteed),
                                  hash_source=algorithms_guaranteed):
@@ -124,4 +125,12 @@ class ShiftingBloomFilter:
                 possible_sets.append(set_no)
             set_no += 1 
         return (len(possible_sets) > 0,possible_sets)
+
+     def save2file(self,filename="sbf.bin"):
+        try:
+            from dill import dump
+            with open(filename,"wb") as datafile:
+                dump(self,datafile)
+        except ImportError:
+            print("[**] requires dill")
 
