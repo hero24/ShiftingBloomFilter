@@ -33,7 +33,7 @@ class HashFactory:
         self.salts = []
         self.hash_funcs = []
         self.doubles = 0
-        self.index = 0
+        self.index = -1
         self._gen_hashes(hash_count)
         while self.doubles > 0:
             self.doubles = 0
@@ -91,10 +91,11 @@ class HashFactory:
         """
             Next function in the iterator.
         """
+        self.index += 1
         if self.index < self.hash_count:
-            self.index += 1
             return self.hash_funcs[self.index]
         raise StopIteration
+        self.index = -1
         
 class CSVDataSet:
     """
