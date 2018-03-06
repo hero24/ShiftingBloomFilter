@@ -126,7 +126,7 @@ class ShiftingBloomFilter:
             set_no += 1 
         return (len(possible_sets) > 0,possible_sets)
 
-     def save2file(self,filename="sbf.bin"):
+    def save2file(self,filename="sbf.bin"):
         try:
             from dill import dump
             with open(filename,"wb") as datafile:
@@ -134,3 +134,11 @@ class ShiftingBloomFilter:
         except ImportError:
             print("[**] requires dill")
 
+    @staticmethod
+    def load_from_file(filename="sbf.bin"):
+        try:
+            from dill import load
+            with open(filename,"rb") as sbf:
+                return load(sbf)
+        except ImportError:
+            print("[**] Requires dill")
