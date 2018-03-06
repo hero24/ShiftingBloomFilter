@@ -40,11 +40,19 @@ class HashFactory:
             self._gen_hashes(doubles)
 
     def save2file(self,filename="hash_data"):
+        try:
+            from dill import dump
+            dump(self,open("filename","wb"))
+        except ImportError:
+            print("[**] Dill is required to serilize hash factory object")
+        """
+
         filehandle = open(filename,"w")
         filehandle.write("Hash family: %s\n"%self.hash_family)
         for salt in self.salts:
             filehandle.write("%s\n" % salt)
         filehandle.close()
+        """
 
     def _gen_hashes(self, hash_count):
         """
