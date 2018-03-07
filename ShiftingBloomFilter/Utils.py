@@ -1,32 +1,30 @@
 #!/usr/bin/env python3
+"""
+Set of utilities that can be used with ShiftingBloomFilter:
+    - CSVDataSet => a reader for data sets stored as CSV files
+    - RandomStringGenerator => object used for generating random strings
+    - HashFactory => object used for producing a list of salted hash functions
+"""
+
 from random import randint
 from hashlib import algorithms_guaranteed
+from sys import modules
 import hashlib
 from .Exceptions import ERROR_MSGS, HashesUnavailableError, SerializationError
-from sys import modules
 try:
     import dill as pickle
 except ImportError:
     pass
 
 
-"""
-    Utilities for working with ShiftingBloomFilter
-    mainly used for testing while developing the filter.
-    Includes:
-        - CSVDataSet => a reader for data sets stored as CSV files
-        - RandomStringGenerator => object used for generating random strings
-"""
-
-
 class HashFactory:
     """
-        Object for creating salted hash functions. 
-        Produces a list of hash functions that can be used 
+        Object for creating salted hash functions.
+        Produces a list of hash functions that can be used
         with ShiftingBloomFilter.
     """
 
-    def __init__(self,hash_family, hash_count):
+    def __init__(self, hash_family, hash_count):
         """
             HashFactory(
                 hash_family => a base for hash functions from hashlib
@@ -35,9 +33,9 @@ class HashFactory:
         """
 
         if hash_family not in algorithms_guaranteed:
-            raise HashesUnavailableError(ERROR_MSGS.HASH_FUNCTION_UNAVAILABLE) 
+            raise HashesUnavailableError(ERROR_MSGS.HASH_FUNCTION_UNAVAILABLE)
         self.hash_family = hash_family
-        self.hash_base = getattr(hashlib,hash_family)
+        self.hash_base = getattr(hashlib, hash_family)
         self.hash_count = hash_count
         self.salts = []
         self.hash_funcs = []
@@ -46,10 +44,10 @@ class HashFactory:
         self.doubles = 0
         self._gen_hashes(hash_count)
         while self.doubles > 0:
-            self.doubles = 0
+            doubles, self.doubles = self.doubles, 0
             self._gen_hashes(doubles)
 
-    def save2file(self,filename="hash_data.bin"):
+    def save2file(self, filename="hash_data.bin"):
         """
             saves a list of hash functions to a binary file
             *** requires dill ***
@@ -60,8 +58,8 @@ class HashFactory:
 
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
-        filehandle = open(filename,"wb")
-        pickle.dump(self,filehandle)
+        filehandle = open(filename, "wb")
+        pickle.dump(self, filehandle)
         filehandle.close()
 
     @staticmethod
@@ -76,7 +74,7 @@ class HashFactory:
 
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
-        datafile = open(filename,"rb")
+        datafile = open(filename, "rb")
         hash_src = pickle.load(datafile)
         datafile.close()
         return hash_src
@@ -94,7 +92,7 @@ class HashFactory:
                 self.doubles += 1
                 continue
             self.salts.append(salt)
-            h_func = lambda s,salt=salt: self.hash_base(s+salt.encode())
+            h_func = lambda s, salt=salt: self.hash_base(s+salt.encode())
             self.hash_funcs.append(h_func)
 
     def __len__(self):
@@ -109,7 +107,7 @@ class HashFactory:
         """
         return self
 
-    def __getitem__(self,val):
+    def __getitem__(self, val):
         """
             Slicing support for the function list
         """
@@ -125,14 +123,14 @@ class HashFactory:
             return self.hash_funcs[self.index]
         self.index = -1
         raise StopIteration
-        
+
 
 class CSVDataSet:
     """
         Iterative reader for csv data sets.
     """
 
-    def __init__(self,filename, separator=','):
+    def __init__(self, filename, separator=','):
         """
            CSVDataSet(
                 filename => name of the csv file
@@ -169,14 +167,14 @@ class RandomStringGenerator:
         RandomStringGenerator, a stream of random strings of given length.
     """
 
-    def __init__(self,string_length=4,ascii_start=32,
-                      ascii_end=126,stream_length=...):
+    def __init__(self, string_length=4, ascii_start=32,
+                    ascii_end=126, stream_length=...):
         """
             RandomStringGenerator(
                 string_length => generate strings of this length
-                ascii_start => start from this ascii character 
+                ascii_start => start from this ascii character
                                             (takes in decimal representation)
-                ascii_end => end at this ascii character 
+                ascii_end => end at this ascii character
                                             (takes in decimal representation)
                 stream_length => length of the stream, or '...' (elipsis) for
                                  infinite stream.
@@ -191,7 +189,7 @@ class RandomStringGenerator:
 
     def __len__(self):
         """
-            returns length of the stream or 
+            returns length of the stream or
             stream length so far for infinite streams
         """
         return self.len if self.len is not ... else self.count
@@ -206,7 +204,7 @@ class RandomStringGenerator:
             raise StopIteration
         s = ""
         for _ in range(self.length):
-            s += chr(randint(self.start,self.end))
+            s += chr(randint(self.start, self.end))
         return s
 
     def __iter__(self):

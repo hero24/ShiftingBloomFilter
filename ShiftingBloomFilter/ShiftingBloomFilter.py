@@ -8,7 +8,7 @@ import hashlib
 from hashlib import algorithms_guaranteed
 from sys import byteorder, modules
 from inspect import signature
-from .Exceptions import HashesUnavailableError, ERROR_MSGS
+from .Exceptions import HashesUnavailableError, SerializationError, ERROR_MSGS
 try:
     import dill as pickle
 except ImportError:
@@ -72,7 +72,7 @@ class ShiftingBloomFilter:
         hashed_value = h(s.encode())
         try:
             # temporary work around => FIX later;
-            if len(signature(hashed_value.digest).parameters) > 0:
+            if signature(hashed_value.digest).parameters:
                 hashed_value = hashed_value.digest(100)
             else:
                 hashed_value = hashed_value.digest()
