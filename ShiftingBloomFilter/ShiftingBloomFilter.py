@@ -11,7 +11,7 @@ except ImportError:
 
 class ShiftingBloomFilter:
     def __init__(self, length,hash_count=len(algorithms_guaranteed),
-                                 hash_source=algorithms_guaranteed):
+                    hash_source=algorithms_guaranteed,length_as_power=True):
         """
         ShiftingBlomFilter(
             length => the size of the underlying bytearray which is used to
@@ -20,11 +20,13 @@ class ShiftingBloomFilter:
                           NOTE: cannot be greater than length 
                                                     of hash source
             hash_source => a list of hashing functions to use
+            length_as_power => is the length of the filter expressed 
+                                as power of 2 (True) or is it literal (False)
         )
         """
         if hash_count > len(hash_source):
             raise HashesUnavailableError(ERROR_MSGS.NOT_ENNOUGH_HASHES)
-        self.m = length
+        self.m = 2**length if length_as_power else length
         self.k = hash_count
         self.cut_off = self.k//2
         self.hashfunc = ([getattr(hashlib,h) for h in algorithms_guaranteed] 
