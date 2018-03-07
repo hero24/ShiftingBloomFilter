@@ -36,9 +36,15 @@ class ShiftingBloomFilter:
         self.max_set = 0
         
     def __len__(self):
+        """
+            (int) returns the length of the underlying bytearray
+        """
         return self.m
 
     def __getitem__(self,index):
+        """
+            (int) [index] => returns index position of the underlying bytearray
+        """
         return self.filter[index]
 
     def _get_hash(self,h,s,offset):
@@ -136,6 +142,9 @@ class ShiftingBloomFilter:
         return (len(possible_sets) > 0,possible_sets)
 
     def save2file(self,filename="sbf.bin"):
+        """
+            (void) save filter to a binary file
+        """
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
         with open(filename,"wb") as datafile:
@@ -143,6 +152,10 @@ class ShiftingBloomFilter:
 
     @staticmethod
     def load_from_file(filename="sbf.bin"):
+        """
+            (static) (ShiftingBloomFilter)
+            restore a filter from binary file.
+        """
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
         with open(filename,"rb") as sbf:
