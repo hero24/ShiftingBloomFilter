@@ -106,7 +106,8 @@ class Filter(tk.Frame):
     """
         Frame containg and displaying the filter.
     """
-    def __init__(self,master,out,options,length=25,hash_source=None,hash_count=None):
+    def __init__(self,master,out,options,length=25,hash_source=None,
+                 hash_count=None,bloom=None):
         """
             Filter(
                 master => parent window
@@ -115,12 +116,18 @@ class Filter(tk.Frame):
                 hash_source => specify other than default hash source,
                                         requires hash_count to be specifed too
                 hash_count => specify amount of hases in the source
+                bloom => use existing bloom filter instead, requires 
+                                            ShiftingBloomFilter object
             )
         """
         super().__init__(master, borderwidth=2, relief="sunken")
         self.length = length
         self.options = options
-        if hash_source and hash_count:
+        if bloom is not None:
+            self.length = len(bloom)
+            def _construct_bloom():
+                return bloom
+        elif hash_source and hash_count:
             def _construct_bloom():
                 return ShiftingBloomFilter(length=length,
                                            hash_source=hash_source,
@@ -141,9 +148,9 @@ class Filter(tk.Frame):
         self.check.grid(row=2,column=length//3,columnspan=length//3,sticky=tk.S)
         self.clear.grid(row=2,column=2*length//3,columnspan=length//3,
                                                                 sticky=tk.S)
-        for i in range(length):
+        for i in range(self.length):
             color = COLOR_PALLETTE.GREEN
-            label = DLabel(self, background=color,initial_value=0)
+            label = DLabel(self, background=color,initial_value=self.bloom[i])
             label.grid(row=0,column=i)
             self.cells.append(label)
 
@@ -189,7 +196,7 @@ class Filter(tk.Frame):
         """
         self.bloom = self._construct_bloom() 
         for i in range(self.length):
-            self._set_cell(i,to=0,bg=(COLOR_PALLETTE.GREEN,
+            self._set_cell(i,to=self.bloom[i],bg=(COLOR_PALLETTE.GREEN,
                                       COLOR_PALLETTE.GREEN))
 
     def _check(self):
@@ -218,11 +225,14 @@ class Main(tk.Tk):
         Main window of Visualiser
     """
     def __init__(self,title="ShiftingBloomFilter Visualiser",length=25,
-                                    hash_count=None, hash_source=None):
+                 hash_count=None, hash_source=None,bloom=None):
         """
             Main(
                 title  => title for visualiser window
                 length => length of the filter
+                hash_count => number of hashing functions to use
+                hash_source=> source of hash functions
+                bloom => use existing bloom filter instead.
             )
         """
         super().__init__()
@@ -234,8 +244,9 @@ class Main(tk.Tk):
             ])
         self.title(title)
         self.out = Out(self)
-        self.filter = Filter(self,out=self.out,options=self.options,length=length,
-                             hash_source=hash_source, hash_count=hash_count)
+        self.filter = Filter(self,out=self.out,options=self.options,
+                             length=length,hash_source=hash_source,
+                             hash_count=hash_count,bloom=bloom)
         self.info = Info(self,options=self.options)
         self.filter.grid(row=0,column=1,sticky=tk.N+tk.S)
         self.info.grid(row=0,column=0)

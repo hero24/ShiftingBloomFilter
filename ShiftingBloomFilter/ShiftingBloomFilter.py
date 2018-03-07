@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 import hashlib
 from hashlib import algorithms_guaranteed
-from sys import byteorder
+from sys import byteorder, modules
 from inspect import signature
 from .Exceptions import HashesUnavailableError, ERROR_MSGS
+try:
+    import dill as pickle
+except ImportError:
+    pass
 
 class ShiftingBloomFilter:
     def __init__(self, length,hash_count=len(algorithms_guaranteed),
@@ -31,6 +35,9 @@ class ShiftingBloomFilter:
         
     def __len__(self):
         return self.m
+
+    def __getitem__(self,index):
+        return self.filter[index]
 
     def _get_hash(self,h,s,offset):
         """
@@ -127,18 +134,14 @@ class ShiftingBloomFilter:
         return (len(possible_sets) > 0,possible_sets)
 
     def save2file(self,filename="sbf.bin"):
-        try:
-            from dill import dump
-            with open(filename,"wb") as datafile:
-                dump(self,datafile)
-        except ImportError:
-            print("[**] requires dill")
+        if "pickle" not in dir(modules[__name__]):
+            raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
+        with open(filename,"wb") as datafile:
+            pickle.dump(self,datafile)
 
     @staticmethod
     def load_from_file(filename="sbf.bin"):
-        try:
-            from dill import load
-            with open(filename,"rb") as sbf:
-                return load(sbf)
-        except ImportError:
-            print("[**] Requires dill")
+        if "pickle" not in dir(modules[__name__]):
+            raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
+        with open(filename,"rb") as sbf:
+            return pickle.load(sbf)

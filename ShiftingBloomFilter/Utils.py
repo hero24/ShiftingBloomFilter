@@ -2,8 +2,12 @@
 from random import randint
 from hashlib import algorithms_guaranteed
 import hashlib
-from .Exceptions import ERROR_MSGS, HashesUnavailableError
-
+from .Exceptions import ERROR_MSGS, HashesUnavailableError, SerializationError
+from sys import modules
+try:
+    import dill as pickle
+except ImportError:
+    pass
 """
     Utilities for working with ShiftingBloomFilter
     mainly used for testing while developing the filter.
@@ -40,31 +44,22 @@ class HashFactory:
             self._gen_hashes(doubles)
 
     def save2file(self,filename="hash_data.bin"):
-        ###
-        # redirect error to stdout or raise specific exception
-        ###
-        try:
-            from dill import dump
-            filehandle = open(filename,"wb")
-            dump(self,filehandle)
-            filehandle.close()
-        except ImportError:
-            print("[**] Dill is required to serilize hash factory object")
-        except IOError:
-            print("[**] Problem with saving/creating file")
+        if "pickle" not in dir(modules[__name__]):
+            raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
+        filehandle = open(filename,"wb")
+        pickle.dump(self,filehandle)
+        filehandle.close()
+
+
 
     @staticmethod
     def load_from_file(filename):
-        try:
-            from dill import load
-            datafile = open(filename,"rb")
-            hash_src = load(datafile)
-            datafile.close()
-            return hash_src
-        except ImportError:
-            print("[**] Dill is required to serilize hash factory object")
-        except IOError:
-            print("[**] Problem with saving/creating file")
+        if "pickle" not in dir(modules[__name__]):
+            raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
+        datafile = open(filename,"rb")
+        hash_src = pickle.load(datafile)
+        datafile.close()
+        return hash_src
 
     def _gen_hashes(self, hash_count):
         """
