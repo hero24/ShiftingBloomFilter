@@ -5,7 +5,7 @@
 
 import tkinter as tk
 from collections import OrderedDict
-from copy import deepcopy
+import copy
 from .. import ShiftingBloomFilter
 
 
@@ -91,7 +91,7 @@ class Info(tk.Frame):
             if key == COLOR_PALLETTE.GREEN:
                 continue
             check_box = tk.Checkbutton(self, variable=self.options[key],
-                                       command=lambda: master.filter.refresh())
+                                       command=master.filter.refresh)
             check_box.grid(column=0, row=row)
 
 
@@ -126,7 +126,7 @@ class Filter(tk.Frame):
     """
 
     def __init__(self, master, out, options, length=25, hash_source=None,
-                 hash_count=None, bloom=None):
+                 hash_count=None, bloom=None, deepcopy=True):
         """
             Filter(
                 master => parent window
@@ -138,6 +138,8 @@ class Filter(tk.Frame):
                 hash_count => specify amount of hases in the source
                 bloom => use existing bloom filter instead, requires
                                             ShiftingBloomFilter object
+                deepcopy => when using existing bloom filter, should visualiser
+                                                            work on a deepcopy
             )
         """
 
@@ -148,7 +150,7 @@ class Filter(tk.Frame):
         if bloom is not None:
             self.length = len(bloom)
             def _construct_bloom():
-                return deepcopy(bloom)
+                return copy.deepcopy(bloom) if deepcopy else bloom
         elif hash_source and hash_count:
             def _construct_bloom():
                 return ShiftingBloomFilter(length=length,
@@ -255,7 +257,7 @@ class Main(tk.Tk):
     """
 
     def __init__(self, title="ShiftingBloomFilter Visualiser", length=25,
-                 hash_count=None, hash_source=None, bloom=None):
+                 hash_count=None, hash_source=None, bloom=None, deepcopy=True):
         """
             Main(
                 title  => title for visualiser window
@@ -263,6 +265,7 @@ class Main(tk.Tk):
                 hash_count => number of hashing functions to use
                 hash_source=> source of hash functions
                 bloom => use existing bloom filter instead.
+                deepcopy => work on copy of a given bloom filter.
             )
         """
 
@@ -277,7 +280,8 @@ class Main(tk.Tk):
         self.out = Out(self)
         self.filter = Filter(self, out=self.out, options=self.options,
                              length=length, hash_source=hash_source,
-                             hash_count=hash_count, bloom=bloom)
+                             hash_count=hash_count, bloom=bloom,
+                             deepcopy=deepcopy)
         self.info = Info(self, options=self.options)
         self.filter.grid(row=0, column=1, sticky=tk.N+tk.S)
         self.info.grid(row=0, column=0)
