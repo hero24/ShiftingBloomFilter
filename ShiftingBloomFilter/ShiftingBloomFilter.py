@@ -43,7 +43,7 @@ class ShiftingBloomFilter:
         self.cut_off = self.k//2
         self.hashfunc = ([getattr(hashlib, h) for h in algorithms_guaranteed]
                     if hash_source is algorithms_guaranteed else hash_source)
-        self.hashfunc = self.hashfunc[0:self.k]
+        self.hashfunc = self.hashfunc[:self.k]
         self.filter = bytearray(self.m)
         self.max_set = 0
 
