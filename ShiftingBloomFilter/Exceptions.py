@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 class ERROR_MSGS:
+    """
+        Container for possible error messages.
+    """
     NOT_ENNOUGH_HASHES = ("The value given for hash_count exceeds " 
                          "amount of available hash functions.")
     HASH_FUNCTION_UNAVAILABLE = "Given hash funtion is unavailable."
@@ -7,6 +10,9 @@ class ERROR_MSGS:
                       " for saving data to file.")
 
 class HashesUnavailableError(ValueError):
+    """
+        Exception raised when there is error related to hashing functions
+    """
     def __init__(self,message):
         super().__init__()
         self.message = message
@@ -15,6 +21,9 @@ class HashesUnavailableError(ValueError):
         return self.message
 
 class SerializationError(ImportError):
+    """
+        Exception raised when there is error with serialization
+    """
     def __init__(self, message):
         super().__init__()
         self.message = message
