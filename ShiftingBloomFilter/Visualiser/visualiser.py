@@ -155,10 +155,11 @@ class Filter(tk.Frame):
             def _construct_bloom():
                 return ShiftingBloomFilter(length=length,
                                            hash_source=hash_source,
-                                           hash_count=hash_count)
+                                           hash_count=hash_count,
+                                           length_as_power=False)
         else:
             def _construct_bloom():
-                return ShiftingBloomFilter(length=length)
+                return ShiftingBloomFilter(length=length,length_as_power=False)
 
         self._construct_bloom = _construct_bloom
         self.bloom = self._construct_bloom()
@@ -174,9 +175,9 @@ class Filter(tk.Frame):
                         sticky=tk.S)
         self.clear.grid(row=2, column=2*length//3, columnspan=length//3,
                         sticky=tk.S)
-        for i in range(self.length):
+        for i,value in enumerate(self.bloom):
             color = COLOR_PALLETTE.GREEN
-            label = DLabel(self, background=color, initial_value=self.bloom[i])
+            label = DLabel(self, background=color, initial_value=value)
             label.grid(row=0, column=i)
             self.cells.append(label)
 
@@ -184,8 +185,8 @@ class Filter(tk.Frame):
         """
             (void) refreshes (resets) the display of the filter
         """
-        for i in range(self.length):
-            if self.bloom.filter[i] == 1:
+        for i,value in enumerate(self.bloom):
+            if value == 1:
                 self._set_cell(i)
 
     def _set_cell(self, cell_id, to=1,
@@ -224,8 +225,8 @@ class Filter(tk.Frame):
         """
 
         self.bloom = self._construct_bloom()
-        for i in range(self.length):
-            self._set_cell(i, to=self.bloom[i], bg=(COLOR_PALLETTE.GREEN,
+        for i,value in enumerate(self.bloom):
+            self._set_cell(i, to=value, bg=(COLOR_PALLETTE.GREEN,
                                                     COLOR_PALLETTE.GREEN))
 
     def _check(self):
