@@ -44,6 +44,13 @@ class HashFactory:
             self._gen_hashes(doubles)
 
     def save2file(self,filename="hash_data.bin"):
+        """
+            saves a list of hash functions to a binary file
+            *** requires dill ***
+            (void) save2file(
+                filename => name of the file that hashes are to be saved to
+            )
+        """
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
         filehandle = open(filename,"wb")
@@ -53,7 +60,14 @@ class HashFactory:
 
 
     @staticmethod
-    def load_from_file(filename):
+    def load_from_file(filename="hash_data.bin"):
+        """
+            loads a list of hash functions from binary file
+            *** requires dill ***
+            (static) (void) load_from_file(
+                filename => name of the file to read from
+            )
+        """
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
         datafile = open(filename,"rb")
