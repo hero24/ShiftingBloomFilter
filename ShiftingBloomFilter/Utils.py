@@ -8,6 +8,8 @@ try:
     import dill as pickle
 except ImportError:
     pass
+
+
 """
     Utilities for working with ShiftingBloomFilter
     mainly used for testing while developing the filter.
@@ -16,12 +18,14 @@ except ImportError:
         - RandomStringGenerator => object used for generating random strings
 """
 
+
 class HashFactory:
     """
         Object for creating salted hash functions. 
         Produces a list of hash functions that can be used 
         with ShiftingBloomFilter.
     """
+
     def __init__(self,hash_family, hash_count):
         """
             HashFactory(
@@ -29,6 +33,7 @@ class HashFactory:
                 hash_count  => number of hash functions to generate
             )
         """
+
         if hash_family not in algorithms_guaranteed:
             raise HashesUnavailableError(ERROR_MSGS.HASH_FUNCTION_UNAVAILABLE) 
         self.hash_family = hash_family
@@ -36,8 +41,9 @@ class HashFactory:
         self.hash_count = hash_count
         self.salts = []
         self.hash_funcs = []
-        self.doubles = 0
         self.index = -1
+
+        self.doubles = 0
         self._gen_hashes(hash_count)
         while self.doubles > 0:
             self.doubles = 0
@@ -51,13 +57,12 @@ class HashFactory:
                 filename => name of the file that hashes are to be saved to
             )
         """
+
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
         filehandle = open(filename,"wb")
         pickle.dump(self,filehandle)
         filehandle.close()
-
-
 
     @staticmethod
     def load_from_file(filename="hash_data.bin"):
@@ -68,6 +73,7 @@ class HashFactory:
                 filename => name of the file to read from
             )
         """
+
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
         datafile = open(filename,"rb")
@@ -82,6 +88,7 @@ class HashFactory:
             )
             generate hash functions with random salts that are all different
         """
+
         for salt in RandomStringGenerator(stream_length=hash_count):
             if salt in self.salts:
                 self.doubles += 1
@@ -112,16 +119,19 @@ class HashFactory:
         """
             Next function in the iterator.
         """
+
         self.index += 1
         if self.index < self.hash_count:
             return self.hash_funcs[self.index]
         self.index = -1
         raise StopIteration
         
+
 class CSVDataSet:
     """
         Iterative reader for csv data sets.
     """
+
     def __init__(self,filename, separator=','):
         """
            CSVDataSet(
@@ -133,14 +143,14 @@ class CSVDataSet:
         self.filename = filename
         self.separator = separator
         self.file = open(filename)
-       
-       
+
     def __next__(self):
         """
             (tuple of values from csv file)
             Iterator, for iterating over values in CSV file,
             resets the file to position 0, after values have been exhaused.
         """
+
         csvs = self.file.readline().strip().split(self.separator)
         if len(csvs) > 1:
             return csvs
@@ -154,11 +164,11 @@ class CSVDataSet:
         return self
 
 
-
 class RandomStringGenerator:
     """
         RandomStringGenerator, a stream of random strings of given length.
     """
+
     def __init__(self,string_length=4,ascii_start=32,
                       ascii_end=126,stream_length=...):
         """
@@ -172,6 +182,7 @@ class RandomStringGenerator:
                                  infinite stream.
                 )
         """
+
         self.length = string_length
         self.start = ascii_start
         self.end = ascii_end
@@ -189,6 +200,7 @@ class RandomStringGenerator:
         """
             returns next string in the stream.
         """
+
         self.count += 1
         if self.len is not ... and self.count > self.len:
             raise StopIteration

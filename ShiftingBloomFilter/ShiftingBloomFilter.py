@@ -9,7 +9,9 @@ try:
 except ImportError:
     pass
 
+
 class ShiftingBloomFilter:
+
     def __init__(self, length,hash_count=len(algorithms_guaranteed),
                     hash_source=algorithms_guaranteed,length_as_power=True):
         """
@@ -24,6 +26,7 @@ class ShiftingBloomFilter:
                                 as power of 2 (True) or is it literal (False)
         )
         """
+
         if hash_count > len(hash_source):
             raise HashesUnavailableError(ERROR_MSGS.NOT_ENNOUGH_HASHES)
         self.m = 2**length if length_as_power else length
@@ -56,6 +59,7 @@ class ShiftingBloomFilter:
                 offset => offset for hash value
             )
         """
+
         hashed_value = h(s.encode())
         try:
             # temporary work around => FIX later;
@@ -100,6 +104,7 @@ class ShiftingBloomFilter:
                 set_no => which set is the item supposed to go in, by default 0
             )
         """
+
         if set_no > self.max_set:
             self.max_set = set_no
         for h in self.hashfunc[:self.cut_off]:
@@ -115,6 +120,7 @@ class ShiftingBloomFilter:
                 item => item to check for
             )
         """
+
         for h in self.hashfunc[:self.cut_off]:
             if not self._check_position(h,item):
                 return False,[]
@@ -128,6 +134,7 @@ class ShiftingBloomFilter:
                 item => item to check for.
             )
         """
+
         set_no =  0
         possible_sets = []
         while self.max_set >= set_no:

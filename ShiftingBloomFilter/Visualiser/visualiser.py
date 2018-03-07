@@ -7,6 +7,7 @@ class COLOR_PALLETTE:
         COLOR PALLETTE for visualiser gui.
         Colors defined as constants using hex color codes
     """
+
     GREEN = "#baffc9"
     BLUE = "#b8f1fd"
     ORANGE = "#ffe2be"
@@ -16,16 +17,19 @@ class COLOR_PALLETTE:
     BIGHT_GREEN = "#8ec127"
     YELLOW = "#fbb40c"
 
+
 class DLabel(tk.Label):
     """
         tk.Label bound to StringVar
     """
+
     def __init__(self,*args,**kwargs):
         """
             DLabel(
                 [initial_value] => create a label with this text
             )
         """
+
         self.strvar = tk.StringVar()
         if "initial_value" in kwargs:
             self.set(kwargs["initial_value"])
@@ -48,10 +52,12 @@ class DLabel(tk.Label):
         """
         self.strvar.get()
 
+
 class Info(tk.Frame):
         """
             Frame with explanation of meanings of colors used
         """
+
         def __init__(self,master,options,
                      color_description=OrderedDict([
                         (COLOR_PALLETTE.GREEN , "Empty field"),
@@ -68,8 +74,10 @@ class Info(tk.Frame):
                                                     and descriptions (values)
                 )
             """
+
             super().__init__(master,borderwidth=2,relief="groove")
             self.options = options
+
             for row,key in enumerate(color_description):
                 l = DLabel(self,background=key,
                                 initial_value=color_description[key])
@@ -80,10 +88,12 @@ class Info(tk.Frame):
                          command=lambda: master.filter.refresh())
                 check_box.grid(column=0,row=row)
 
+
 class Out(tk.Frame):
     """
         Output frame for displaying output messages 
     """
+
     def __init__(self,master):
         """
             Out(
@@ -103,10 +113,12 @@ class Out(tk.Frame):
         """
         self.output_label.set(out_s)
 
+
 class Filter(tk.Frame):
     """
         Frame containg and displaying the filter.
     """
+
     def __init__(self,master,out,options,length=25,hash_source=None,
                  hash_count=None,bloom=None):
         """
@@ -122,9 +134,11 @@ class Filter(tk.Frame):
                                             ShiftingBloomFilter object
             )
         """
+
         super().__init__(master, borderwidth=2, relief="sunken")
         self.length = length
         self.options = options
+
         if bloom is not None:
             self.length = len(bloom)
             def _construct_bloom():
@@ -137,6 +151,7 @@ class Filter(tk.Frame):
         else:
             def _construct_bloom():
                 return ShiftingBloomFilter(length=length)
+
         self._construct_bloom = _construct_bloom
         self.bloom = self._construct_bloom()
         self.cells = []
@@ -174,6 +189,7 @@ class Filter(tk.Frame):
                 bg      => tuple of color codes to use for highlighting
             )
         """
+
         bg, aftercut = bg
         if cell_id > self.bloom.cut_off:
             bg = aftercut
@@ -188,6 +204,7 @@ class Filter(tk.Frame):
             Insert value from entry field into the bloom filter and refresh
             the display.
         """
+
         self.bloom.insert(self.entry.get())
         self.refresh()
 
@@ -196,6 +213,7 @@ class Filter(tk.Frame):
             (callback) (void)
             Clears the Bloom Filter and the display of it.
         """
+
         self.bloom = self._construct_bloom() 
         for i in range(self.length):
             self._set_cell(i,to=self.bloom[i],bg=(COLOR_PALLETTE.GREEN,
@@ -207,9 +225,11 @@ class Filter(tk.Frame):
             Checks if item stored in entry label is in the set, and if it is
             highlights the bits belonging to the item.
         """
+
         self.refresh()
         is_in, sets = self.bloom.check(self.entry.get())
         self.out.set_out("Item is %sin the set" % ("" if is_in else "not "))
+
         if is_in:
             hash_func = self.bloom.hashfunc
             cut_off = self.bloom.cut_off
@@ -226,6 +246,7 @@ class Main(tk.Tk):
     """
         Main window of Visualiser
     """
+
     def __init__(self,title="ShiftingBloomFilter Visualiser",length=25,
                  hash_count=None, hash_source=None,bloom=None):
         """
@@ -237,6 +258,7 @@ class Main(tk.Tk):
                 bloom => use existing bloom filter instead.
             )
         """
+
         super().__init__()
         self.options = OrderedDict([(COLOR_PALLETTE.GREEN , tk.BooleanVar()),
                                     (COLOR_PALLETTE.RED   , tk.BooleanVar()),
