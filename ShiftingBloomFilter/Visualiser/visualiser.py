@@ -1,7 +1,7 @@
 import tkinter as tk
 from .. import ShiftingBloomFilter
 from collections import OrderedDict
-
+from copy import deepcopy
 class COLOR_PALLETTE:
     """
         COLOR PALLETTE for visualiser gui.
@@ -63,6 +63,7 @@ class Info(tk.Frame):
             """
                 Info(
                     master => parent window
+                    options => (tk.BooleanVar) option variables for checkboxes
                     color_description => dict of color codes (key)
                                                     and descriptions (values)
                 )
@@ -112,6 +113,7 @@ class Filter(tk.Frame):
             Filter(
                 master => parent window
                 out    => message output frame
+                options => (tk.BooleanVar) variables for options (readonly)
                 length => length of the filter to create and display
                 hash_source => specify other than default hash source,
                                         requires hash_count to be specifed too
@@ -126,7 +128,7 @@ class Filter(tk.Frame):
         if bloom is not None:
             self.length = len(bloom)
             def _construct_bloom():
-                return bloom
+                return deepcopy(bloom)
         elif hash_source and hash_count:
             def _construct_bloom():
                 return ShiftingBloomFilter(length=length,
