@@ -10,7 +10,7 @@ from random import randint
 from hashlib import algorithms_guaranteed
 import hashlib
 import pickle
-from .Exceptions import ERROR_MSGS, HashesUnavailableError
+from .exceptions import ERROR_MSGS, HashesUnavailableError
 
 class HashFunction:
     """

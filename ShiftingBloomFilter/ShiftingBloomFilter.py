@@ -9,7 +9,7 @@ from hashlib import algorithms_guaranteed
 import pickle as pickle
 from sys import byteorder
 from inspect import signature
-from .Exceptions import HashesUnavailableError, ERROR_MSGS
+from .exceptions import HashesUnavailableError, ERROR_MSGS
 
 
 class ShiftingBloomFilter:
