@@ -10,8 +10,6 @@ class ERROR_MSGS:
     NOT_ENNOUGH_HASHES = ("The value given for hash_count exceeds "
                           "amount of available hash functions.")
     HASH_FUNCTION_UNAVAILABLE = "Given hash funtion is unavailable."
-    DILL_NOT_FOUND = ("Cannot load dill module which is required"
-                      " for saving data to file.")
 
 
 class HashesUnavailableError(ValueError):
@@ -23,16 +21,4 @@ class HashesUnavailableError(ValueError):
         self.message = message
 
     def __str__(self):
-        return self.message
-
-
-class SerializationError(ImportError):
-    """
-        Exception raised when there is error with serialization
-    """
-    def __init__(self, message, *args, **kwargs):
-        super().__init__(args, kwargs)
-        self.message = message
-
-    def __str__(self):
-        return self.message
+        return self.message 
