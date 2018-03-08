@@ -6,7 +6,7 @@
 import tkinter as tk
 from collections import OrderedDict
 import copy
-from .. import ShiftingBloomFilter
+from .. import shifting_bloom_filter
 
 
 class COLOR_PALLETTE:
