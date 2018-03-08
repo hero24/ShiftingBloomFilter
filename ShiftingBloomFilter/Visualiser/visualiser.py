@@ -44,14 +44,14 @@ class DLabel(tk.Label):
         super().__init__(*args, **kwargs)
         self["textvariable"] = self.strvar
 
-    def set(self, s):
+    def set(self, value):
         """
             (void) set the value of StringVar to s
             set(
-                s => change label to s
+                value => change label to s
             )
         """
-        self.strvar.set(str(s))
+        self.strvar.set(str(value))
 
     def get(self):
         """
@@ -86,8 +86,8 @@ class Info(tk.Frame):
         self.options = options
 
         for row, key in enumerate(color_description):
-            l = DLabel(self, background=key, initial_value=color_description[key])
-            l.grid(column=1, row=row, sticky=tk.W+tk.E)
+            label = DLabel(self, background=key, initial_value=color_description[key])
+            label.grid(column=1, row=row, sticky=tk.W+tk.E)
             if key == COLOR_PALLETTE.GREEN:
                 continue
             check_box = tk.Checkbutton(self, variable=self.options[key],
@@ -189,24 +189,24 @@ class Filter(tk.Frame):
             if value == 1:
                 self._set_cell(i)
 
-    def _set_cell(self, cell_id, to=1,
-                  bg=(COLOR_PALLETTE.RED, COLOR_PALLETTE.ORANGE)):
+    def _set_cell(self, cell_id, value=1,
+                  background=(COLOR_PALLETTE.RED, COLOR_PALLETTE.ORANGE)):
         """
             (void) sets cell in bloom filter display
             _set_cell(
                 cell_id => cell index to change
-                to      => value to change the cell to
-                bg      => tuple of color codes to use for highlighting
+                value      => value to change the cell to
+                background => tuple of color codes to use for highlighting
             )
         """
 
-        bg, aftercut = bg
+        background, aftercut = background
         if cell_id > self.bloom.cut_off:
-            bg = aftercut
-        if not self.options[bg].get():
-            bg = COLOR_PALLETTE.GREEN
-        self.cells[cell_id].set(to)
-        self.cells[cell_id].config(bg=bg)
+            background = aftercut
+        if not self.options[background].get():
+            background = COLOR_PALLETTE.GREEN
+        self.cells[cell_id].set(value)
+        self.cells[cell_id].config(bg=background)
 
     def _insert(self):
         """
@@ -226,7 +226,7 @@ class Filter(tk.Frame):
 
         self.bloom = self._construct_bloom()
         for i, value in enumerate(self.bloom):
-            self._set_cell(i, to=value, bg=(COLOR_PALLETTE.GREEN,
+            self._set_cell(i, value=value, background=(COLOR_PALLETTE.GREEN,
                                                     COLOR_PALLETTE.GREEN))
 
     def _check(self):
@@ -243,13 +243,13 @@ class Filter(tk.Frame):
         if is_in:
             hash_func = self.bloom.hashfunc
             cut_off = self.bloom.cut_off
-            for h in hash_func[:cut_off]:
-                self._set_cell(self.bloom._get_hash(h, self.entry.get(), 0),
-                               bg=(COLOR_PALLETTE.YELLOW, COLOR_PALLETTE.YELLOW))
-            for h in hash_func[cut_off:]:
+            for hash_fn in hash_func[:cut_off]:
+                self._set_cell(self.bloom._get_hash(hash_fn, self.entry.get(), 0),
+                               background=(COLOR_PALLETTE.YELLOW, COLOR_PALLETTE.YELLOW))
+            for hash_fn in hash_func[cut_off:]:
                 for i in range(self.bloom.max_set+1):
-                    self._set_cell(self.bloom._get_hash(h, self.entry.get(), i),
-                           bg=(COLOR_PALLETTE.PURPLE, COLOR_PALLETTE.PURPLE))
+                    self._set_cell(self.bloom._get_hash(hash_fn, self.entry.get(), i),
+                           background=(COLOR_PALLETTE.PURPLE, COLOR_PALLETTE.PURPLE))
 
 
 class Main(tk.Tk):

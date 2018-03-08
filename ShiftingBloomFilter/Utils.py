@@ -14,7 +14,7 @@ from .Exceptions import ERROR_MSGS, HashesUnavailableError
 
 class HashFunction:
     """
-        A salted wrapper around hashing function.  
+        A salted wrapper around hashing function.
     """
 
     def __init__(self, hash_base, salt):
@@ -221,10 +221,10 @@ class RandomStringGenerator:
         self.count += 1
         if self.len is not ... and self.count > self.len:
             raise StopIteration
-        s = ""
+        rand_s = ""
         for _ in range(self.length):
-            s += chr(randint(self.start, self.end))
-        return s
+            rand_s += chr(randint(self.start, self.end))
+        return rand_s
 
     def __iter__(self):
         """
