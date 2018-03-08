@@ -9,12 +9,30 @@ Set of utilities that can be used with ShiftingBloomFilter:
 from random import randint
 from hashlib import algorithms_guaranteed
 import hashlib
+import pickle
 from sys import modules
 from .Exceptions import ERROR_MSGS, HashesUnavailableError, SerializationError
-try:
-    import dill as pickle
-except ImportError:
-    pass
+
+class HashFunction:
+    """
+        A salted wrapper around hashing function.  
+    """
+
+    def __init__(self, hash_base, salt):
+        """
+            HashFunction(
+                hash_base => hash function to use for base,
+                salt => salt to use for hashing.
+            )
+        """
+        self.hash_base = hash_base
+        self.salt = salt.encode()
+
+    def __call__(self, data):
+        """
+            Return hash for data
+        """
+        return self.hash_base(data + self.salt)
 
 
 class HashFactory:
@@ -56,8 +74,6 @@ class HashFactory:
             )
         """
         filehandle = None
-        if "pickle" not in dir(modules[__name__]):
-            raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
         try:
             filehandle = open(filename, "wb")
             pickle.dump(self, filehandle)
@@ -75,8 +91,6 @@ class HashFactory:
             )
         """
         datafile = None
-        if "pickle" not in dir(modules[__name__]):
-            raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
         try:
             datafile = open(filename, "rb")
             hash_src = pickle.load(datafile)
@@ -98,8 +112,8 @@ class HashFactory:
                 self.doubles += 1
                 continue
             self.salts.append(salt)
-            h_func = lambda s, salt=salt: self.hash_base(s+salt.encode())
-            self.hash_funcs.append(h_func)
+            #h_func = lambda data, salt=salt: self.hash_base(data+salt.encode())
+            self.hash_funcs.append(HashFunction(self.hash_base, salt))
 
     def __len__(self):
         """
