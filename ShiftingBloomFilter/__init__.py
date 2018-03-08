@@ -1,3 +1,4 @@
 from ShiftingBloomFilter.ShiftingBloomFilter import ShiftingBloomFilter
-import ShiftingBloomFilter.Utils as Utils
-__all__ = ["ShiftingBloomFilter","Utils"]
+import ShiftingBloomFilter.utils as utils
+import ShiftingBloomFilter.Exceptions as exceptions
+__all__ = ["ShiftingBloomFilter","utils", "exceptions"]
