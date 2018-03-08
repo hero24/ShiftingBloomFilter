@@ -22,7 +22,7 @@ class ShiftingBloomFilter:
     """
 
     def __init__(self, length, hash_count=len(algorithms_guaranteed),
-                    hash_source=algorithms_guaranteed, length_as_power=True):
+                 hash_source=algorithms_guaranteed, length_as_power=True):
         """
         ShiftingBlomFilter(
             length => the size of the underlying bytearray which is used to
@@ -42,7 +42,7 @@ class ShiftingBloomFilter:
         self.k = hash_count
         self.cut_off = self.k//2
         self.hashfunc = ([getattr(hashlib, h) for h in algorithms_guaranteed]
-                    if hash_source is algorithms_guaranteed else hash_source)
+                       if hash_source is algorithms_guaranteed else hash_source)
         self.hashfunc = self.hashfunc[:self.k]
         self.filter = bytearray(self.m)
         self.max_set = 0
@@ -147,12 +147,10 @@ class ShiftingBloomFilter:
         set_no = 0
         possible_sets = []
         while self.max_set >= set_no:
-            found = True
             for h in self.hashfunc[self.cut_off:]:
                 if not self._check_position(h, item, set_no):
-                    found = False
                     break
-            if found:
+            else:
                 possible_sets.append(set_no)
             set_no += 1
         return (len(possible_sets) > 0, possible_sets)
@@ -164,7 +162,7 @@ class ShiftingBloomFilter:
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
         with open(filename, "wb") as datafile:
-            pickle.dump(self,datafile)
+            pickle.dump(self, datafile)
 
     @staticmethod
     def load_from_file(filename="sbf.bin"):

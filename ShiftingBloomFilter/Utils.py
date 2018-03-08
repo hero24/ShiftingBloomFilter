@@ -8,8 +8,8 @@ Set of utilities that can be used with ShiftingBloomFilter:
 
 from random import randint
 from hashlib import algorithms_guaranteed
-from sys import modules
 import hashlib
+from sys import modules
 from .Exceptions import ERROR_MSGS, HashesUnavailableError, SerializationError
 try:
     import dill as pickle
@@ -55,12 +55,15 @@ class HashFactory:
                 filename => name of the file that hashes are to be saved to
             )
         """
-
+        filehandle = None
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
-        filehandle = open(filename, "wb")
-        pickle.dump(self, filehandle)
-        filehandle.close()
+        try:
+            filehandle = open(filename, "wb")
+            pickle.dump(self, filehandle)
+        finally:
+            if filehandle:
+                filehandle.close()
 
     @staticmethod
     def load_from_file(filename="hash_data.bin"):
@@ -71,12 +74,15 @@ class HashFactory:
                 filename => name of the file to read from
             )
         """
-
+        datafile = None
         if "pickle" not in dir(modules[__name__]):
             raise SerializationError(ERROR_MSGS.DILL_NOT_FOUND)
-        datafile = open(filename, "rb")
-        hash_src = pickle.load(datafile)
-        datafile.close()
+        try:
+            datafile = open(filename, "rb")
+            hash_src = pickle.load(datafile)
+        finally:
+            if datafile:
+                datafile.close()
         return hash_src
 
     def _gen_hashes(self, hash_count):
@@ -168,7 +174,7 @@ class RandomStringGenerator:
     """
 
     def __init__(self, string_length=4, ascii_start=32,
-                    ascii_end=126, stream_length=...):
+                 ascii_end=126, stream_length=...):
         """
             RandomStringGenerator(
                 string_length => generate strings of this length
