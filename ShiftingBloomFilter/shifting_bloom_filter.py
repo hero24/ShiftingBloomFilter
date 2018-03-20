@@ -18,8 +18,8 @@ class ShiftingBloomFilter:
                                sets. Implements shifting bloom filter.
     """
 
-    def __init__(self, length, hash_count=len(algorithms_guaranteed),
-                 hash_source=algorithms_guaranteed, length_as_power=True):
+    def __init__(self, length, hash_source=algorithms_guaranteed,
+                 hash_count=None, length_as_power=True):
         """
         ShiftingBlomFilter(
             length => the size of the underlying bytearray which is used to
@@ -32,7 +32,8 @@ class ShiftingBloomFilter:
                                 as power of 2 (True) or is it literal (False)
         )
         """
-
+        if hash_count is None:
+            hash_count = len(hash_source)
         if hash_count > len(hash_source):
             raise HashesUnavailableError(ERROR_MSGS.NOT_ENNOUGH_HASHES)
         self.m = 2**length if length_as_power else length
