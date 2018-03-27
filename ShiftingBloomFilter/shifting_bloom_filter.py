@@ -1,4 +1,4 @@
-#!/usr/bin/env python3i
+#!/usr/bin/env python3
 
 """
  Python implementation of shifting bloom filter.
@@ -11,6 +11,9 @@ from sys import byteorder
 from inspect import signature
 from .exceptions import HashesUnavailableError, ERROR_MSGS
 
+ASSOCSET = True
+MULTISET = not ASSOCSET
+
 
 class ShiftingBloomFilter:
     """
@@ -19,7 +22,7 @@ class ShiftingBloomFilter:
     """
 
     def __init__(self, length, hash_source=algorithms_guaranteed,
-                 hash_count=None, length_as_power=True):
+             hash_count=None, length_as_power=True, mode=ASSOCSET,set_count=0):
         """
         ShiftingBlomFilter(
             length => the size of the underlying bytearray which is used to
@@ -30,6 +33,9 @@ class ShiftingBloomFilter:
             hash_source => a list of hashing functions to use
             length_as_power => is the length of the filter expressed
                                 as power of 2 (True) or is it literal (False)
+            mode => ASSOCSET if there are multiple sets or MULTISET if its one
+                    set but supporting multiple elements.
+            set_count => how many sets is this filter supposed to support?
         )
         """
         if hash_count is None:
@@ -39,11 +45,13 @@ class ShiftingBloomFilter:
         self.m = 2**length if length_as_power else length
         self.k = hash_count
         self.cut_off = self.k//2
-        self.hashfunc = ([getattr(hashlib, name) for name in algorithms_guaranteed]
-                       if hash_source is algorithms_guaranteed else hash_source)
+        self.hashfunc = (
+                    [getattr(hashlib, name) for name in algorithms_guaranteed]
+                    if hash_source is algorithms_guaranteed else hash_source
+                    )
         self.hashfunc = self.hashfunc[:self.k]
         self.filter = bytearray(self.m)
-        self.max_set = 0
+        self.max_set = set_count
 
     def __len__(self):
         """
