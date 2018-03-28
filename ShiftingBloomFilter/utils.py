@@ -4,6 +4,7 @@ Set of utilities that can be used with ShiftingBloomFilter:
     - CSVDataSet => a reader for data sets stored as CSV files
     - RandomStringGenerator => object used for generating random strings
     - HashFactory => object used for producing a list of salted hash functions
+    - HashFunction => a salted hash function.
 """
 
 from random import randint
@@ -47,6 +48,10 @@ class HashFactory:
                 hash_family => a base for hash functions from hashlib
                 hash_count  => number of hash functions to generate
             )
+
+            Public methods:
+            - save2file(filename) => save to file
+            - (static) load_from_file(filename) => load from file
         """
 
         if hash_family not in algorithms_guaranteed:

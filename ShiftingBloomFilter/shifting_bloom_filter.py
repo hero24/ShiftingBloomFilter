@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-
-"""
- Python implementation of shifting bloom filter.
-"""
+""" Python implementation of shifting bloom filter."""
 
 import hashlib
 from hashlib import algorithms_guaranteed
@@ -11,18 +8,18 @@ from sys import byteorder
 from inspect import signature
 from .exceptions import HashesUnavailableError, ERROR_MSGS
 
-ASSOCSET = True
-MULTISET = not ASSOCSET
+MULTIPLE = True
+MULTISET = not MULTIPLE
 
 
 class ShiftingBloomFilter:
     """
         ShiftingBloomFilter => bloom filter with support for handling multiple
-                               sets. Implements shifting bloom filter.
+                               sets or multisets
     """
 
     def __init__(self, length, hash_source=algorithms_guaranteed,
-             hash_count=None, length_as_power=True, mode=ASSOCSET,set_count=0):
+             hash_count=None, length_as_power=True, mode=MULTIPLE,set_count=0):
         """
         ShiftingBlomFilter(
             length => the size of the underlying bytearray which is used to
@@ -37,6 +34,12 @@ class ShiftingBloomFilter:
                     set but supporting multiple elements.
             set_count => how many sets is this filter supposed to support?
         )
+
+        public methods:
+        - insert(item, set_no) => insert item into filter with set_no
+        - check(item) => check if item is in the filter
+        - save2file(filename) => save filter to file
+        - (static) load_from_file(filename) => load filter from file
         """
         if hash_count is None:
             hash_count = len(hash_source)
@@ -54,9 +57,7 @@ class ShiftingBloomFilter:
         self.max_set = set_count
 
     def __len__(self):
-        """
-            (int) returns the length of the underlying bytearray
-        """
+        """(int) returns the length of the underlying bytearray"""
         return self.m
 
     def __getitem__(self, index):
@@ -162,9 +163,7 @@ class ShiftingBloomFilter:
         return (len(possible_sets) > 0, possible_sets)
 
     def save2file(self, filename="sbf.bin"):
-        """
-            (void) save filter to a binary file
-        """
+        """(void) save filter to a binary file"""
         with open(filename, "wb") as datafile:
             pickle.dump(self, datafile)
 
