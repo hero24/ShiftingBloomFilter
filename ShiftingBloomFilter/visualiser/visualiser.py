@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """
     Implements a GUI visualiser for shifting bloom filter
+
+    Subclasses:
+    - COLOR_PALLETTE => Constants with hex codes for colors used in visualiser.
+    - DLabel => tkinter label bound to tkinter StringVar.
+    - Info => Frame for displaying information and descriptions.
+    - Out => Frame for displaying output messages
+    - Filter => Frame representing the ShiftingBloomFilter
+    - Main => Main window of visuliser, contains static method run
 """
 
 import tkinter as tk
@@ -62,7 +70,7 @@ class DLabel(tk.Label):
 
 class Info(tk.Frame):
     """
-        Frame with explanation of meanings of colors used
+        Frame for displaying informations and descriptions.
     """
 
     def __init__(self, master, options,
