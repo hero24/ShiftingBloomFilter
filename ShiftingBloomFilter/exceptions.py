@@ -12,7 +12,13 @@ class ERROR_MSGS:
     HASH_FUNCTION_UNAVAILABLE = "Given hash funtion is unavailable."
 
 
-class HashesUnavailableError(ValueError):
+class SBFException(Exception):
+    """
+        Top-level module exception
+    """
+    pass
+
+class HashesUnavailableError(SBFException, ValueError):
     """
         Exception raised when there is error related to hashing functions
     """
