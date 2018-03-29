@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """
 Module containing ShiftingBloomFilter specific exceptions
+    Exceptions:
+    - SBFException => ShifingBloomFilter base top-level module exception.
+    - HashesUnavailableError => Exception raised when there is problem with 
+                                hash function avaialbilty.
+
+    Other objects:
+    - ERROR_MSGS => Wrapper around all the possible error messages.
 """
 class ERROR_MSGS:
     """
