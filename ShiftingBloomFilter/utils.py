@@ -15,7 +15,7 @@ from .exceptions import ERROR_MSGS, HashesUnavailableError
 
 class HashFunction:
     """
-        A salted wrapper around hashing function.
+        Wrapper around a salted hashing function.
     """
 
     def __init__(self, hash_base, salt):
@@ -29,9 +29,7 @@ class HashFunction:
         self.salt = salt.encode()
 
     def __call__(self, data):
-        """
-            Return hash for data
-        """
+        """Return hash for data"""
         return self.hash_base(data + self.salt)
 
 
@@ -52,6 +50,11 @@ class HashFactory:
             Public methods:
             - save2file(filename) => save to file
             - (static) load_from_file(filename) => load from file
+
+            ** supports: **
+            - slicing
+            - built-in len function
+            - iterating over.
         """
 
         if hash_family not in algorithms_guaranteed:
@@ -72,7 +75,6 @@ class HashFactory:
     def save2file(self, filename="hash_data.bin"):
         """
             saves a list of hash functions to a binary file
-            *** requires dill ***
             (void) save2file(
                 filename => name of the file that hashes are to be saved to
             )
@@ -89,7 +91,6 @@ class HashFactory:
     def load_from_file(filename="hash_data.bin"):
         """
             loads a list of hash functions from binary file
-            *** requires dill ***
             (static) (void) load_from_file(
                 filename => name of the file to read from
             )
