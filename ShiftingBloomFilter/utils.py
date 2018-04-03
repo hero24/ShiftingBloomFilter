@@ -28,6 +28,10 @@ class HashFunction:
         self.hash_base = hash_base
         self.salt = salt.encode()
 
+    def __repr__(self):
+        """return string representation of a salted hash function"""
+        return "HashFunction(%s,%s)" % (repr(self.hash_base),str(self.salt))
+
     def __call__(self, data):
         """Return hash for data"""
         return self.hash_base(data + self.salt)
@@ -71,6 +75,13 @@ class HashFactory:
         while self.doubles > 0:
             doubles, self.doubles = self.doubles, 0
             self._gen_hashes(doubles)
+
+    def __repr__(self):
+        """returns an representation of HashFactory object"""
+        return "HashFactory(%s, %s)" % (
+                str(self.hash_family),
+                str(self.hash_count)
+                )
 
     def save2file(self, filename="hash_data.bin"):
         """
@@ -180,6 +191,10 @@ class CSVDataSet:
         self.file.seek(0)
         raise StopIteration
 
+    def __repr__(self):
+        """returns a representation of CSVDataSet"""
+        return "CSVDataSet(%s, %s)" % (self.filename, self.separator)
+
     def __iter__(self):
         """
             Returns iterator for dataset.
@@ -211,6 +226,15 @@ class RandomStringGenerator:
         self.end = ascii_end
         self.len = stream_length
         self.count = 0
+
+    def __repr__(self):
+        """Returns string representation of RandomStringGenerator"""
+        return "RandomStringGenerator(%s, %s, %s, %s)" % (
+            self.length,
+            self.start,
+            self.end,
+            self.stream_length
+        )
 
     def __len__(self):
         """
