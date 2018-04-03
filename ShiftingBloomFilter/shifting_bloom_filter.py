@@ -55,10 +55,33 @@ class ShiftingBloomFilter:
         self.hashfunc = self.hashfunc[:self.k]
         self.filter = bytearray(self.m)
         self.max_set = set_count
+        self.length = length
+        self.length_as_power = length_as_power
+        self.hash_source = hash_source
+        self.mode = mode
 
     def __len__(self):
         """(int) returns the length of the underlying bytearray"""
         return self.m
+
+    def __str__(self):
+        """return string representation of the filter"""
+        str_ = ""
+        for i in self.filter:
+            str_ += " " + str(i)
+        str_ += " "
+        return str_
+
+    def __repr__(self):
+        """return string representation of an object constructor"""
+        return "ShiftingBloomFilter(%s, %s, %s, %s, %s, %s)" % (
+            self.length,
+            self.hash_source,
+            self.k,
+            self.length_as_power,
+            self.mode,
+            self.max_set
+        )
 
     def __getitem__(self, index):
         """
