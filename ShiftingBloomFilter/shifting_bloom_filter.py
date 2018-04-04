@@ -41,17 +41,18 @@ class ShiftingBloomFilter:
         - save2file(filename) => save filter to file
         - (static) load_from_file(filename) => load filter from file
         """
-        if hash_count is None:
-            hash_count = len(hash_source)
-        if hash_count > len(hash_source):
-            raise HashesUnavailableError(ERROR_MSGS.NOT_ENNOUGH_HASHES)
         self.m = 2**length if length_as_power else length
-        self.k = hash_count
-        self.cut_off = self.k//2
         self.hashfunc = (
-                    [getattr(hashlib, name) for name in algorithms_guaranteed]
+                    [getattr(hashlib, name) for name in algorithms_guaranteed 
+                     if "shake" not in name.lower()]
                     if hash_source is algorithms_guaranteed else hash_source
                     )
+        if hash_count is None:
+            hash_count = len(self.hashfunc)
+        if hash_count > len(hash_source):
+            raise HashesUnavailableError(ERROR_MSGS.NOT_ENNOUGH_HASHES)
+        self.k = hash_count
+        self.cut_off = self.k//2
         self.hashfunc = self.hashfunc[:self.k]
         self.filter = bytearray(self.m)
         self.max_set = set_count
