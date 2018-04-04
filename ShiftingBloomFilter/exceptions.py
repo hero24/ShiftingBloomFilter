@@ -3,7 +3,7 @@
 Module containing ShiftingBloomFilter specific exceptions
     Exceptions:
     - SBFException => ShifingBloomFilter base top-level module exception.
-    - HashesUnavailableError => Exception raised when there is problem with 
+    - HashesUnavailableError => Exception raised when there is problem with
                                 hash function avaialbilty.
 
     Other objects:

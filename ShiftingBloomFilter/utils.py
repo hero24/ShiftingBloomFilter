@@ -30,7 +30,7 @@ class HashFunction:
 
     def __repr__(self):
         """return string representation of a salted hash function"""
-        return "HashFunction(%s,%s)" % (repr(self.hash_base),str(self.salt))
+        return "HashFunction(%s,%s)" % (repr(self.hash_base), str(self.salt))
 
     def __call__(self, data):
         """Return hash for data"""
@@ -79,9 +79,9 @@ class HashFactory:
     def __repr__(self):
         """returns an representation of HashFactory object"""
         return "HashFactory(%s, %s)" % (
-                str(self.hash_family),
-                str(self.hash_count)
-                )
+            str(self.hash_family),
+            str(self.hash_count)
+        )
 
     def save2file(self, filename="hash_data.bin"):
         """
@@ -233,7 +233,7 @@ class RandomStringGenerator:
             self.length,
             self.start,
             self.end,
-            self.stream_length
+            self.len
         )
 
     def __len__(self):

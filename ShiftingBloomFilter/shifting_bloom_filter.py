@@ -5,7 +5,6 @@ import hashlib
 from hashlib import algorithms_guaranteed
 import pickle as pickle
 from sys import byteorder
-from inspect import signature
 from .exceptions import HashesUnavailableError, ERROR_MSGS
 
 MULTIPLE = True
@@ -19,7 +18,7 @@ class ShiftingBloomFilter:
     """
 
     def __init__(self, length, hash_source=algorithms_guaranteed,
-             hash_count=None, length_as_power=True, mode=MULTIPLE,set_count=0):
+             hash_count=None, length_as_power=True, mode=MULTIPLE, set_count=0):
         """
         ShiftingBlomFilter(
             length => the size of the underlying bytearray which is used to
@@ -35,6 +34,12 @@ class ShiftingBloomFilter:
             set_count => how many sets is this filter supposed to support?
         )
 
+        ** NOTE: every hashing function must have a digest function that takes
+                 no arguments. If 'shake' functions are provided by
+                 algorithms_guaranteed (the default) they are dropped because,
+                 they require a parameter in the digest function
+        **
+
         public methods:
         - insert(item, set_no) => insert item into filter with set_no
         - check(item) => check if item is in the filter
@@ -43,10 +48,10 @@ class ShiftingBloomFilter:
         """
         self.m = 2**length if length_as_power else length
         self.hashfunc = (
-                    [getattr(hashlib, name) for name in algorithms_guaranteed 
-                     if "shake" not in name.lower()]
-                    if hash_source is algorithms_guaranteed else hash_source
-                    )
+            [getattr(hashlib, name) for name in algorithms_guaranteed
+             if "shake" not in name.lower()]
+            if hash_source is algorithms_guaranteed else hash_source
+        )
         if hash_count is None:
             hash_count = len(self.hashfunc)
         if hash_count > len(hash_source):
@@ -100,21 +105,7 @@ class ShiftingBloomFilter:
             )
         """
 
-        hashed_value = hash_fn(data.encode())
-        """
-        # if shake function is present this work around is nessesary
-        # this operation is extremly costly.
-        # maybe its good to remove shake functions that take in parameters 
-        # for digest all together.
-        try:
-            # temporary work around => FIX later;
-            if signature(hashed_value.digest).parameters:
-                hashed_value = hashed_value.digest(100)
-            else:
-                hashed_value = hashed_value.digest()
-        except ValueError:
-        """
-        hashed_value = hashed_value.digest()
+        hashed_value = hash_fn(data.encode()).digest()
         return (int.from_bytes(hashed_value, byteorder) + offset) % self.m
 
     def _set_position(self, hash_fn, item, set_no=0):
