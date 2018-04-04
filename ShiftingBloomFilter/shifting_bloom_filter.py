@@ -100,6 +100,11 @@ class ShiftingBloomFilter:
         """
 
         hashed_value = hash_fn(data.encode())
+        """
+        # if shake function is present this work around is nessesary
+        # this operation is extremly costly.
+        # maybe its good to remove shake functions that take in parameters 
+        # for digest all together.
         try:
             # temporary work around => FIX later;
             if signature(hashed_value.digest).parameters:
@@ -107,7 +112,8 @@ class ShiftingBloomFilter:
             else:
                 hashed_value = hashed_value.digest()
         except ValueError:
-            hashed_value = hashed_value.digest()
+        """
+        hashed_value = hashed_value.digest()
         return (int.from_bytes(hashed_value, byteorder) + offset) % self.m
 
     def _set_position(self, hash_fn, item, set_no=0):
