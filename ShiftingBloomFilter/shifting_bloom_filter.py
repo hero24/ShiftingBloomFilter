@@ -147,21 +147,32 @@ class ShiftingBloomFilter:
             insert(
                 item => item to insert
                 set_no => which set is the item supposed to go in, by default 0
+                          if working with multiple sets.
             )
         """
         if self.mode:
-            self._insert_multiple(item, set_no)
+            if set_no > self.max_set:
+                self.max_set = set_no
+             self._insert_at_offset(item, set_no)
         else:
-            #check for item and increment set_no
-            pass
+            in_set, count = check(item)
+            if in_set:
+                self._insert_at_offset(item, count+1)
+            else:
+                self._insert_at_offset(item, 0)
 
-    def _insert_muliple(self, item, set_no):
-        if set_no > self.max_set:
-            self.max_set = set_no
+    def _insert_at_offset(self, item, offset):
+        """
+            (void) inserts item with 'offset' as an offset
+            _insert_at_offset(
+                item => item to insert
+                offset => offset to use while hashing
+            )
+        """
         for hash_fn in self.hashfunc[:self.cut_off]:
             self._set_position(hash_fn, item)
         for hash_fn in self.hashfunc[self.cut_off:]:
-            self._set_position(hash_fn, item, set_no)
+            self._set_position(hash_fn, item, offset)
 
     def check(self, item):
         """
