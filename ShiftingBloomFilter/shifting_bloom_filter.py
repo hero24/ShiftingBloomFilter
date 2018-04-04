@@ -151,11 +151,9 @@ class ShiftingBloomFilter:
             )
         """
         if self.mode:
-            if set_no > self.max_set:
-                self.max_set = set_no
-             self._insert_at_offset(item, set_no)
+            self._insert_at_offset(item, set_no)
         else:
-            in_set, count = check(item)
+            in_set, count = self.check(item)
             if in_set:
                 self._insert_at_offset(item, count+1)
             else:
@@ -169,6 +167,8 @@ class ShiftingBloomFilter:
                 offset => offset to use while hashing
             )
         """
+        if offset > self.max_set:
+            self.max_set = offset
         for hash_fn in self.hashfunc[:self.cut_off]:
             self._set_position(hash_fn, item)
         for hash_fn in self.hashfunc[self.cut_off:]:
