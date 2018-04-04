@@ -149,7 +149,13 @@ class ShiftingBloomFilter:
                 set_no => which set is the item supposed to go in, by default 0
             )
         """
+        if self.mode:
+            self._insert_multiple(item, set_no)
+        else:
+            #check for item and increment set_no
+            pass
 
+    def _insert_muliple(self, item, set_no):
         if set_no > self.max_set:
             self.max_set = set_no
         for hash_fn in self.hashfunc[:self.cut_off]:
@@ -159,7 +165,8 @@ class ShiftingBloomFilter:
 
     def check(self, item):
         """
-            (boolean, list of set ids that item might possibly be in)
+            (boolean, list of set ids that item might possibly be in) or
+            (boolean, possible count of items in the set)
             checks the possibility of item being in a set
             check(
                 item => item to check for
@@ -168,12 +175,15 @@ class ShiftingBloomFilter:
 
         for hash_fn in self.hashfunc[:self.cut_off]:
             if not self._check_position(hash_fn, item):
-                return False, []
+                if self.mode:
+                    return False, []
+                return False, 0
         return self._check_offsets(item)
 
     def _check_offsets(self, item):
         """
-            (boolean, list of set ids that item might possibly be in)
+            (boolean, list of set ids that item might possibly be in) or
+            (boolean, possible count of items in the set)
             checks the sets that item might be in.
             _check_offsets(
                 item => item to check for.
@@ -189,7 +199,9 @@ class ShiftingBloomFilter:
             else:
                 possible_sets.append(set_no)
             set_no += 1
-        return (len(possible_sets) > 0, possible_sets)
+        if self.mode:
+            return (len(possible_sets) > 0, possible_sets)
+        return (len(possible_sets) > 0, len(possible_sets))
 
     def save2file(self, filename="sbf.bin"):
         """(void) save filter to a binary file"""
