@@ -133,6 +133,8 @@ class Filter(tk.Frame):
         Frame containg and displaying the filter.
     """
 
+    DEFAULT_BACKGROUND = (COLOR_PALLETTE.RED, COLOR_PALLETTE.ORANGE)
+
     def __init__(self, master, out, options, length=25, hash_source=None,
                  hash_count=None, bloom=None, deepcopy=True):
         """
@@ -188,6 +190,8 @@ class Filter(tk.Frame):
             label = DLabel(self, background=color, initial_value=value)
             label.grid(row=0, column=i)
             self.cells.append(label)
+        self.set = set()
+        self.currrent_element = None
 
     def refresh(self):
         """
@@ -197,8 +201,16 @@ class Filter(tk.Frame):
             if value == 1:
                 self._set_cell(i)
 
+    def _get_aftercut_hashes(self, element):
+        """
+            [(int)] returns positions of hash offsets for element
+        """
+            return [self.bloom._get_hash(func,element,0) 
+                    for func in self.bloom.hashfunc[self.bloom.cut_off:]
+                    ]
+
     def _set_cell(self, cell_id, value=1,
-                  background=(COLOR_PALLETTE.RED, COLOR_PALLETTE.ORANGE)):
+                  background=DEFAULT_BACKGROUND):
         """
             (void) sets cell in bloom filter display
             _set_cell(
@@ -207,9 +219,15 @@ class Filter(tk.Frame):
                 background => tuple of color codes to use for highlighting
             )
         """
-
+        acut = None
+        if background is Filter.DEFAULT_BACKGROUND:
+            acut = []
+            for i in self.set:
+                acut += self._get_aftercut_hashes(i)
+        elif self.current_element:
+            acut = self._get_aftercut_hashes(self.current_element)
         background, aftercut = background
-        if cell_id > self.bloom.cut_off:
+        if acut and cell_id in acut:
             background = aftercut
         if not self.options[background].get():
             background = COLOR_PALLETTE.GREEN
@@ -222,8 +240,9 @@ class Filter(tk.Frame):
             Insert value from entry field into the bloom filter and refresh
             the display.
         """
-
-        self.bloom.insert(self.entry.get())
+        self.current_element = self.entry.get()
+        self.set.add(self.current_element)
+        self.bloom.insert(self.current_element)
         self.refresh()
 
     def _clear(self):
@@ -231,7 +250,8 @@ class Filter(tk.Frame):
             (callback) (void)
             Clears the Bloom Filter and the display of it.
         """
-
+        self.set = set()
+        self.current_element = None
         self.bloom = self._construct_bloom()
         for i, value in enumerate(self.bloom):
             self._set_cell(i, value=value, background=(COLOR_PALLETTE.GREEN,
@@ -245,7 +265,8 @@ class Filter(tk.Frame):
         """
 
         self.refresh()
-        is_in, _ = self.bloom.check(self.entry.get())
+        self.current_element = self.entry.get()
+        is_in, _ = self.bloom.check(self.current_element)
         self.out.set_out("Item is %sin the set" % ("" if is_in else "not "))
 
         if is_in:
