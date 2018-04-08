@@ -190,7 +190,7 @@ class Filter(tk.Frame):
             label = DLabel(self, background=color, initial_value=value)
             label.grid(row=0, column=i)
             self.cells.append(label)
-        self.set = set()
+        self.sets = [set()]
         self.currrent_element = None
 
     def refresh(self):
@@ -222,7 +222,7 @@ class Filter(tk.Frame):
         acut = None
         if background is Filter.DEFAULT_BACKGROUND:
             acut = []
-            for i in self.set:
+            for i in self.sets[0]:
                 acut += self._get_aftercut_hashes(i)
         elif self.current_element:
             acut = self._get_aftercut_hashes(self.current_element)
@@ -241,7 +241,7 @@ class Filter(tk.Frame):
             the display.
         """
         self.current_element = self.entry.get()
-        self.set.add(self.current_element)
+        self.sets[0].add(self.current_element)
         self.bloom.insert(self.current_element)
         self.refresh()
 
@@ -250,7 +250,7 @@ class Filter(tk.Frame):
             (callback) (void)
             Clears the Bloom Filter and the display of it.
         """
-        self.set = set()
+        self.sets = [set()]
         self.current_element = None
         self.bloom = self._construct_bloom()
         for i, value in enumerate(self.bloom):
@@ -280,7 +280,45 @@ class Filter(tk.Frame):
                     self._set_cell(self.bloom._get_hash(hash_fn, self.entry.get(), i),
                            background=(COLOR_PALLETTE.PURPLE, COLOR_PALLETTE.PURPLE))
 
+"""
+class SetDisplay(tk.Frame):
+    
+    def __init__(self,master):
+        super().__init__()
+        self.master = master
+        self.sets = [set() for _ in range(10)]
+        for set_ in self.sets:
+            rsg = Utils.RandomStringGenerator()
+            for i, j in enumerate(rsg):
+                if i == 6:
+                    break
+                set_.add(j)
+        self.var = tk.StringVar(self)
+        self.menu = tk.OptionMenu(self,self.var,*[str(i) for i,j in enumerate(self.sets)],command=self.display_set)
+        self.menu.grid()
+        self.list = None
+    
+    def display_set(self, *args):
+        if self.list:
+            self.list.grid_forget()
+        self.list = tk.Listbox()
+        id = int(self.var.get())
+        for elem in self.sets[id]:
+            self.list.insert(tk.END,elem)
+        self.list.grid()
 
+class Choice(tk.Frame):
+
+    def __init__(self):
+        super().__init__()
+        self.choice = tk.StringVar(self)
+        self.list = tk.OptionMenu(self,self.choice, "Multiset", "Multiple sets", command=self.see)
+        self.list.grid()
+        
+    def see(self,*args):
+        print(self.choice.get())
+        
+"""                  
 class Main(tk.Tk):
     """
         Main window of Visualiser
