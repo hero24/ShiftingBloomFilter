@@ -282,7 +282,9 @@ class Filter(tk.Frame):
 
 """
 class SetDisplay(tk.Frame):
-    
+    #TODO: - add choice of mode for visualiser
+    #      - add argument for specifing number of sets if multiple set mode on.
+    #
     def __init__(self,master):
         super().__init__()
         self.master = master
