@@ -205,9 +205,9 @@ class Filter(tk.Frame):
         """
             [(int)] returns positions of hash offsets for element
         """
-            return [self.bloom._get_hash(func,element,0) 
-                    for func in self.bloom.hashfunc[self.bloom.cut_off:]
-                    ]
+        return [self.bloom._get_hash(func,element,0) 
+                for func in self.bloom.hashfunc[self.bloom.cut_off:]
+                ]
 
     def _set_cell(self, cell_id, value=1,
                   background=DEFAULT_BACKGROUND):
