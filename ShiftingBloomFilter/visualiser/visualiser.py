@@ -270,12 +270,13 @@ class Filter(tk.Frame):
 
         self.refresh()
         self.current_element = self.entry.get()
-        is_in, _ = self.bloom.check(self.current_element)
+        is_in, set_ids = self.bloom.check(self.current_element)
         self.out.set_out("Item is %sin the set" % ("" if is_in else "not "))
 
         if is_in:
             hash_func = self.bloom.hashfunc
             cut_off = self.bloom.cut_off
+            self.master.sets.highlight(set_ids[0],self.current_element)
             for hash_fn in hash_func[:cut_off]:
                 self._set_cell(self.bloom._get_hash(hash_fn, self.entry.get(), 0),
                                background=(COLOR_PALLETTE.YELLOW, COLOR_PALLETTE.YELLOW))
@@ -283,6 +284,8 @@ class Filter(tk.Frame):
                 for i in range(self.bloom.max_set+1):
                     self._set_cell(self.bloom._get_hash(hash_fn, self.entry.get(), i),
                            background=(COLOR_PALLETTE.PURPLE, COLOR_PALLETTE.PURPLE))
+        else:
+            self.master.sets.clear_selection()
 
     def _generate_string(self):
         self.entry.delete(0,tk.END)
@@ -298,14 +301,25 @@ class SetDisplay(tk.Frame):
         self.master = master
         self.sets = master.filter.sets 
         self.var = tk.StringVar(self)
+        self.var.set(0)
         self.menu = tk.OptionMenu(self,self.var,*[str(i) for i,j in enumerate(self.sets)],command=self.display_set)
         self.menu.grid(columnspan=2,sticky=tk.W+tk.E)
         self.list = None
+
+    def highlight(self,set_no, element):
+        items = self.list.get(0,self.list.size())
+        for i,j in enumerate(items):
+            if j == element:
+                self.list.selection_set(i)
+
+    def clear_selection(self):
+        self.list.selection_clear(0,tk.END)
     
     def display_set(self, *args):
         if self.list:
             self.list.grid_forget()
         self.list = tk.Listbox()
+        self.list.bindtags((self.list,self.master,"all"))
         id = int(self.var.get())
         for elem in self.sets[id]:
             self.list.insert(tk.END,elem)
