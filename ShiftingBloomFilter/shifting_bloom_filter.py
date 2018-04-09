@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """ Python implementation of shifting bloom filter."""
 
+#"It seems like the right thing to do is tackle problems
+# other people aren't working on" ~Sean Parker 
+
 import hashlib
 from hashlib import algorithms_guaranteed
 import pickle as pickle

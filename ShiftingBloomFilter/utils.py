@@ -6,6 +6,9 @@ Set of utilities that can be used with ShiftingBloomFilter:
     - HashFactory => object used for producing a list of salted hash functions
     - HashFunction => a salted hash function.
 """
+#"It takes courage to choose hope over fear."
+#   ~Mark Zuckerberg
+
 
 from random import randint
 from hashlib import algorithms_guaranteed

@@ -9,6 +9,11 @@ Module containing ShiftingBloomFilter specific exceptions
     Other objects:
     - ERROR_MSGS => Wrapper around all the possible error messages.
 """
+
+# "Some people dream of success,
+#  while others wake up and work hard at it."
+#           ~ Mark Zuckerberg
+
 class ERROR_MSGS:
     """
         Container for possible error messages.
