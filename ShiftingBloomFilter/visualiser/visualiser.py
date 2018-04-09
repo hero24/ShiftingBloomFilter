@@ -178,12 +178,15 @@ class Filter(tk.Frame):
                 return ShiftingBloomFilter(length=length, length_as_power=False,
                 mode=mode
                 )
-        self.selection_var = tk.StringVar(self)
-        self.selection_var.set(0)
-        if mode:
-            self.sets = [set() for _ in range(no_sets)]
+        columnspan = length//4
+        self.mode = mode
+        if self.mode:
+            self.selection_var = tk.StringVar(self)
+            self.selection_var.set(0)
+            self.sets = [set() for _ in range(no_sets)] 
         else:
-            self.sets = [set()]
+            self.sets = []
+            columnspan = length//3
         self.no_sets = no_sets
         self._construct_bloom = _construct_bloom
         self.bloom = self._construct_bloom()
@@ -191,19 +194,16 @@ class Filter(tk.Frame):
         self.entry = tk.Entry(self)
         self.out = out
         self.entry.grid(row=1, columnspan=length, sticky=tk.S+tk.N)
-        self.insert = tk.Button(self, text="Insert", command=self._insert)
-        self.choice = tk.OptionMenu(self,self.selection_var,
+        self.controls = []
+        self.controls.append(tk.Button(self, text="Insert", command=self._insert))
+        if self.mode:
+            self.controls.append(tk.OptionMenu(self,self.selection_var,
                         *[str(i) for i,j in enumerate(self.sets)]
-                        )
-        self.check = tk.Button(self, text="Check", command=self._check)
-        self.clear = tk.Button(self, text="Clear", command=self._clear)
-        self.insert.grid(row=2, columnspan=length//4, sticky=tk.S)
-        self.choice.grid(row=2,column=length//4, columnspan=length//4, 
-                        sticky=tk.S)
-        self.check.grid(row=2, column=2*length//4, columnspan=length//4,
-                        sticky=tk.S)
-        self.clear.grid(row=2, column=3*length//4, columnspan=length//4,
-                        sticky=tk.S)
+                        ))
+        self.controls.append(tk.Button(self, text="Check", command=self._check))
+        self.controls.append(tk.Button(self, text="Clear", command=self._clear)) 
+        for i, j in enumerate(self.controls):
+            j.grid(row=2,column=i*columnspan, columnspan=columnspan,sticky=tk.S) 
         self.string_generator = utils.RandomStringGenerator(string_length=...)
         self.generate_button = tk.Button(self,text="Generate random element",
                                          command=self._generate_string)
@@ -245,6 +245,9 @@ class Filter(tk.Frame):
         if background is Filter.DEFAULT_BACKGROUND:
             acut = []
             for i in self.sets:
+                if not self.mode:
+                    acut += self._get_aftercut_hashes(i)
+                    continue
                 for j in i:
                     acut += self._get_aftercut_hashes(j)
         elif self.current_element:
@@ -264,10 +267,14 @@ class Filter(tk.Frame):
             the display.
         """
         self.current_element = self.entry.get()
-        set_id = int(self.selection_var.get())
-        self.master.sets.var.set(set_id)
-        self.sets[set_id].add(self.current_element)
-        self.bloom.insert(self.current_element, set_id)
+        if self.mode:
+            set_id = int(self.selection_var.get())
+            self.master.sets.var.set(set_id)
+            self.sets[set_id].add(self.current_element)
+            self.bloom.insert(self.current_element, set_id)
+        else:
+            self.sets.append(self.current_element)
+            self.bloom.insert(self.current_element)
         self.refresh()
         self.master.sets.display_set()
 
@@ -276,12 +283,16 @@ class Filter(tk.Frame):
             (callback) (void)
             Clears the Bloom Filter and the display of it.
         """
-        self.sets = [set() for _ in range(self.no_sets)]
+        if self.mode:
+            self.sets = [set() for _ in range(self.no_sets)]
+        else:
+            self.sets = []
         self.current_element = None
         self.bloom = self._construct_bloom()
         for i, value in enumerate(self.bloom):
             self._set_cell(i, value=value, background=(COLOR_PALLETTE.GREEN,
                                                     COLOR_PALLETTE.GREEN))
+        self.master.sets.display_set()
 
     def _check(self):
         """
@@ -320,14 +331,17 @@ class SetDisplay(tk.Frame):
         self.sets = master.filter.sets 
         self.var = tk.StringVar(self)
         self.var.set(0)
-        self.menu = tk.OptionMenu(self,self.var,*[str(i) for i,j in enumerate(self.sets)],command=self.display_set)
-        self.menu.grid(columnspan=2,sticky=tk.W+tk.E)
+        if master.mode:
+            self.menu = tk.OptionMenu(self,self.var,*[str(i) for i,j in enumerate(self.sets)],command=self.display_set)
+            self.menu.grid(columnspan=2,sticky=tk.W+tk.E)
         self.list = None
 
     def highlight(self,set_no, element):
-        if set_no:
+        if set_no and self.master.mode:
             set_no = set_no[0] if int(self.var.get()) not in set_no else self.var.get() 
             self.var.set(set_no)
+            self.display_set()
+        elif set_no:
             self.display_set()
         else:
             self.clear_selection()
@@ -347,8 +361,10 @@ class SetDisplay(tk.Frame):
             self.list.grid_forget()
         self.list = tk.Listbox()
         self.list.bindtags((self.list,self.master,"all"))
-        id = int(self.var.get())
-        for elem in self.sets[id]:
+        if self.master.mode:
+            id = int(self.var.get())
+            self.sets = self.sets[id]
+        for elem in self.sets:
             self.list.insert(tk.END,elem)
         self.list.grid(columnspan=2,sticky=tk.W+tk.E)
 
@@ -379,6 +395,7 @@ class Main(tk.Tk):
                                     (COLOR_PALLETTE.PURPLE, tk.BooleanVar())
                        ])
         self.title(title)
+        self.mode = mode
         self.out = Out(self)
         self.filter = Filter(self, out=self.out, options=self.options,
                              length=length, hash_source=hash_source,
@@ -388,16 +405,16 @@ class Main(tk.Tk):
         self.sets = SetDisplay(self)
         self.filter.grid(row=0, column=1, sticky=tk.N+tk.S)
         self.info.grid(row=0, column=0)
-        self.out.grid(row=1, columnspan=2)
+        self.out.grid(row=1, columnspan=2) 
         self.sets.grid(row=2, columnspan=2, sticky=tk.W+tk.E)
         self.resizable(False, False)
 
     @staticmethod
-    def run(title="ShiftingBloomFilter Visualiser", length=25):
+    def run(title="ShiftingBloomFilter Visualiser", length=25,mode=MULTIPLE):
         """
             (static) (void)
             Instanciates main window of visualiser and runs it.
 
         """
-        window = Main(title, length)
+        window = Main(title, length, mode=mode)
         window.mainloop()
