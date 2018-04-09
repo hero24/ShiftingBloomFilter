@@ -15,7 +15,7 @@ import tkinter as tk
 from collections import OrderedDict
 import copy
 from .. import ShiftingBloomFilter 
-
+from .. import utils
 
 class COLOR_PALLETTE:
     """
@@ -185,6 +185,9 @@ class Filter(tk.Frame):
                         sticky=tk.S)
         self.clear.grid(row=2, column=2*length//3, columnspan=length//3,
                         sticky=tk.S)
+        self.string_generator = utils.RandomStringGenerator(string_length=...)
+        self.generate_button = tk.Button(self,text="Generate random element", command=self._generate_string)
+        self.generate_button.grid(row=3,columnspan=length)
         for i, value in enumerate(self.bloom):
             color = COLOR_PALLETTE.GREEN
             label = DLabel(self, background=color, initial_value=value)
@@ -244,6 +247,7 @@ class Filter(tk.Frame):
         self.sets[0].add(self.current_element)
         self.bloom.insert(self.current_element)
         self.refresh()
+        self.master.sets.display_set()
 
     def _clear(self):
         """
@@ -280,24 +284,22 @@ class Filter(tk.Frame):
                     self._set_cell(self.bloom._get_hash(hash_fn, self.entry.get(), i),
                            background=(COLOR_PALLETTE.PURPLE, COLOR_PALLETTE.PURPLE))
 
-"""
+    def _generate_string(self):
+        self.entry.delete(0,tk.END)
+        self.entry.insert(0,next(self.string_generator))
+
+
 class SetDisplay(tk.Frame):
     #TODO: - add choice of mode for visualiser
     #      - add argument for specifing number of sets if multiple set mode on.
     #
-    def __init__(self,master):
-        super().__init__()
+    def __init__(self,master,*args):
+        super().__init__(master,*args)
         self.master = master
-        self.sets = [set() for _ in range(10)]
-        for set_ in self.sets:
-            rsg = Utils.RandomStringGenerator()
-            for i, j in enumerate(rsg):
-                if i == 6:
-                    break
-                set_.add(j)
+        self.sets = master.filter.sets 
         self.var = tk.StringVar(self)
         self.menu = tk.OptionMenu(self,self.var,*[str(i) for i,j in enumerate(self.sets)],command=self.display_set)
-        self.menu.grid()
+        self.menu.grid(columnspan=2,sticky=tk.W+tk.E)
         self.list = None
     
     def display_set(self, *args):
@@ -307,8 +309,8 @@ class SetDisplay(tk.Frame):
         id = int(self.var.get())
         for elem in self.sets[id]:
             self.list.insert(tk.END,elem)
-        self.list.grid()
-
+        self.list.grid(columnspan=2,sticky=tk.W+tk.E)
+"""
 class Choice(tk.Frame):
 
     def __init__(self):
@@ -353,9 +355,11 @@ class Main(tk.Tk):
                              hash_count=hash_count, bloom=bloom,
                              deepcopy=deepcopy)
         self.info = Info(self, options=self.options)
+        self.sets = SetDisplay(self)
         self.filter.grid(row=0, column=1, sticky=tk.N+tk.S)
         self.info.grid(row=0, column=0)
         self.out.grid(row=1, columnspan=2)
+        self.sets.grid(row=2, columnspan=2, sticky=tk.W+tk.E)
         self.resizable(False, False)
 
     @staticmethod
