@@ -181,6 +181,7 @@ class Filter(tk.Frame):
         self.selection_var = tk.StringVar(self)
         self.selection_var.set(0)
         self.sets = [set() for _ in range(no_sets)]
+        self.no_sets = no_sets
         self._construct_bloom = _construct_bloom
         self.bloom = self._construct_bloom()
         self.cells = []
@@ -260,8 +261,9 @@ class Filter(tk.Frame):
         """
         self.current_element = self.entry.get()
         set_id = int(self.selection_var.get())
+        self.master.sets.var.set(set_id)
         self.sets[set_id].add(self.current_element)
-        self.bloom.insert(self.current_element)
+        self.bloom.insert(self.current_element, set_id)
         self.refresh()
         self.master.sets.display_set()
 
@@ -270,7 +272,7 @@ class Filter(tk.Frame):
             (callback) (void)
             Clears the Bloom Filter and the display of it.
         """
-        self.sets = [set()]
+        self.sets = [set() for _ in range(self.no_sets)]
         self.current_element = None
         self.bloom = self._construct_bloom()
         for i, value in enumerate(self.bloom):
@@ -288,11 +290,10 @@ class Filter(tk.Frame):
         self.current_element = self.entry.get()
         is_in, set_ids = self.bloom.check(self.current_element)
         self.out.set_out("Item is %sin the set" % ("" if is_in else "not "))
-
+        self.master.sets.highlight(set_ids,self.current_element)
         if is_in:
             hash_func = self.bloom.hashfunc
             cut_off = self.bloom.cut_off
-            self.master.sets.highlight(set_ids[0],self.current_element)
             for hash_fn in hash_func[:cut_off]:
                 self._set_cell(self.bloom._get_hash(hash_fn, self.entry.get(), 0),
                                background=(COLOR_PALLETTE.YELLOW, COLOR_PALLETTE.YELLOW))
@@ -300,8 +301,6 @@ class Filter(tk.Frame):
                 for i in range(self.bloom.max_set+1):
                     self._set_cell(self.bloom._get_hash(hash_fn, self.entry.get(), i),
                            background=(COLOR_PALLETTE.PURPLE, COLOR_PALLETTE.PURPLE))
-        else:
-            self.master.sets.clear_selection()
 
     def _generate_string(self):
         self.entry.delete(0,tk.END)
@@ -322,15 +321,24 @@ class SetDisplay(tk.Frame):
         self.list = None
 
     def highlight(self,set_no, element):
+        if set_no:
+            set_no = set_no[0] if int(self.var.get()) not in set_no else self.var.get() 
+            self.var.set(set_no)
+            self.display_set()
+        else:
+            self.clear_selection()
+            return
         items = self.list.get(0,self.list.size())
         for i,j in enumerate(items):
             if j == element:
                 self.list.selection_set(i)
 
     def clear_selection(self):
-        self.list.selection_clear(0,tk.END)
+        if self.list:
+            self.list.selection_clear(0,tk.END)
     
     def display_set(self, *args):
+        self.sets = self.master.filter.sets 
         if self.list:
             self.list.grid_forget()
         self.list = tk.Listbox()
