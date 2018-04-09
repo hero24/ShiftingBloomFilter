@@ -16,6 +16,7 @@ from collections import OrderedDict
 import copy
 from .. import ShiftingBloomFilter 
 from .. import utils
+from .. import MULTIPLE
 
 class COLOR_PALLETTE:
     """
@@ -136,7 +137,8 @@ class Filter(tk.Frame):
     DEFAULT_BACKGROUND = (COLOR_PALLETTE.RED, COLOR_PALLETTE.ORANGE)
 
     def __init__(self, master, out, options, length=25, hash_source=None,
-                 hash_count=None, bloom=None, deepcopy=True):
+                 hash_count=None, bloom=None, deepcopy=True, mode=MULTIPLE,
+                 no_sets=10):
         """
             Filter(
                 master => parent window
@@ -150,6 +152,8 @@ class Filter(tk.Frame):
                                             ShiftingBloomFilter object
                 deepcopy => when using existing bloom filter, should visualiser
                                                             work on a deepcopy
+                mode=> mode of work for ShiftingBloomFilter
+                no_sets => if multiple sets, number of sets
             )
         """
 
@@ -166,11 +170,17 @@ class Filter(tk.Frame):
                 return ShiftingBloomFilter(length=length,
                                            hash_source=hash_source,
                                            hash_count=hash_count,
-                                           length_as_power=False)
+                                           length_as_power=False,
+                                           mode=mode
+                                           )
         else:
             def _construct_bloom():
-                return ShiftingBloomFilter(length=length, length_as_power=False)
-
+                return ShiftingBloomFilter(length=length, length_as_power=False,
+                mode=mode
+                )
+        self.selection_var = tk.StringVar(self)
+        self.selection_var.set(0)
+        self.sets = [set() for _ in range(no_sets)]
         self._construct_bloom = _construct_bloom
         self.bloom = self._construct_bloom()
         self.cells = []
@@ -178,12 +188,17 @@ class Filter(tk.Frame):
         self.out = out
         self.entry.grid(row=1, columnspan=length, sticky=tk.S+tk.N)
         self.insert = tk.Button(self, text="Insert", command=self._insert)
+        self.choice = tk.OptionMenu(self,self.selection_var,
+                        *[str(i) for i,j in enumerate(self.sets)]
+                        )
         self.check = tk.Button(self, text="Check", command=self._check)
         self.clear = tk.Button(self, text="Clear", command=self._clear)
-        self.insert.grid(row=2, columnspan=length//3, sticky=tk.S)
-        self.check.grid(row=2, column=length//3, columnspan=length//3,
+        self.insert.grid(row=2, columnspan=length//4, sticky=tk.S)
+        self.choice.grid(row=2,column=length//4, columnspan=length//4, 
                         sticky=tk.S)
-        self.clear.grid(row=2, column=2*length//3, columnspan=length//3,
+        self.check.grid(row=2, column=2*length//4, columnspan=length//4,
+                        sticky=tk.S)
+        self.clear.grid(row=2, column=3*length//4, columnspan=length//4,
                         sticky=tk.S)
         self.string_generator = utils.RandomStringGenerator(string_length=...)
         self.generate_button = tk.Button(self,text="Generate random element", command=self._generate_string)
@@ -193,7 +208,6 @@ class Filter(tk.Frame):
             label = DLabel(self, background=color, initial_value=value)
             label.grid(row=0, column=i)
             self.cells.append(label)
-        self.sets = [set()]
         self.currrent_element = None
 
     def refresh(self):
@@ -225,8 +239,9 @@ class Filter(tk.Frame):
         acut = None
         if background is Filter.DEFAULT_BACKGROUND:
             acut = []
-            for i in self.sets[0]:
-                acut += self._get_aftercut_hashes(i)
+            for i in self.sets:
+                for j in i:
+                    acut += self._get_aftercut_hashes(j)
         elif self.current_element:
             acut = self._get_aftercut_hashes(self.current_element)
         background, aftercut = background
@@ -244,7 +259,8 @@ class Filter(tk.Frame):
             the display.
         """
         self.current_element = self.entry.get()
-        self.sets[0].add(self.current_element)
+        set_id = int(self.selection_var.get())
+        self.sets[set_id].add(self.current_element)
         self.bloom.insert(self.current_element)
         self.refresh()
         self.master.sets.display_set()
@@ -291,7 +307,6 @@ class Filter(tk.Frame):
         self.entry.delete(0,tk.END)
         self.entry.insert(0,next(self.string_generator))
 
-
 class SetDisplay(tk.Frame):
     #TODO: - add choice of mode for visualiser
     #      - add argument for specifing number of sets if multiple set mode on.
@@ -324,19 +339,7 @@ class SetDisplay(tk.Frame):
         for elem in self.sets[id]:
             self.list.insert(tk.END,elem)
         self.list.grid(columnspan=2,sticky=tk.W+tk.E)
-"""
-class Choice(tk.Frame):
 
-    def __init__(self):
-        super().__init__()
-        self.choice = tk.StringVar(self)
-        self.list = tk.OptionMenu(self,self.choice, "Multiset", "Multiple sets", command=self.see)
-        self.list.grid()
-        
-    def see(self,*args):
-        print(self.choice.get())
-        
-"""                  
 class Main(tk.Tk):
     """
         Main window of Visualiser
