@@ -318,14 +318,24 @@ class Filter(tk.Frame):
                            background=(COLOR_PALLETTE.PURPLE, COLOR_PALLETTE.PURPLE))
 
     def _generate_string(self):
+        """
+            (callback) (void)
+            Generates a random string and inserts it into entry field
+        """
         self.entry.delete(0,tk.END)
         self.entry.insert(0,next(self.string_generator))
 
 class SetDisplay(tk.Frame):
-    #TODO: - add choice of mode for visualiser
-    #      - add argument for specifing number of sets if multiple set mode on.
-    #
+    """
+        Frame containing contents of sets that are represented by filter.
+    """
     def __init__(self,master,*args):
+        """
+            SetDisplay(
+                master => parent window 
+                *args => any other tk.Frame config arguments
+            )
+        """
         super().__init__(master,*args)
         self.master = master
         self.sets = master.filter.sets 
@@ -337,6 +347,15 @@ class SetDisplay(tk.Frame):
         self.list = None
 
     def highlight(self,set_no, element):
+        """
+            (void) highlights element in set_no unless MULTISET mode, 
+            then higlights elements corresponding to element
+
+            highlight(
+                set_no => set to display
+                element => element to highlight
+            )
+        """
         if set_no and self.master.mode:
             set_no = set_no[0] if int(self.var.get()) not in set_no else self.var.get() 
             self.var.set(set_no)
@@ -352,10 +371,17 @@ class SetDisplay(tk.Frame):
                 self.list.selection_set(i)
 
     def clear_selection(self):
+        """
+            (void) Clears active selection of element
+        """
         if self.list:
             self.list.selection_clear(0,tk.END)
     
     def display_set(self, *args):
+        """
+            (void) displays elements, that are in currently selected set (if MULIPLE mode)
+            or just the MULTISET
+        """
         self.sets = self.master.filter.sets 
         if self.list:
             self.list.grid_forget()
