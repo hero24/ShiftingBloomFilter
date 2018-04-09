@@ -206,7 +206,8 @@ class RandomStringGenerator:
     """
         RandomStringGenerator, a stream of random strings of given length.
     """
-
+    RANDOM_MIN = 4
+    RANDOM_MAX = 32
     def __init__(self, string_length=4, ascii_start=32,
                  ascii_end=126, stream_length=...):
         """
@@ -252,7 +253,11 @@ class RandomStringGenerator:
         if self.len is not ... and self.count > self.len:
             raise StopIteration
         rand_s = ""
-        for _ in range(self.length):
+        if self.length is ...:
+            rng = range(randint(RandomStringGenerator.RANDOM_MIN,RandomStringGenerator.RANDOM_MAX))
+        else:
+            rng = range(self.length)
+        for _ in rng:
             rand_s += chr(randint(self.start, self.end))
         return rand_s
 
