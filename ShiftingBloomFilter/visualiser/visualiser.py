@@ -180,7 +180,10 @@ class Filter(tk.Frame):
                 )
         self.selection_var = tk.StringVar(self)
         self.selection_var.set(0)
-        self.sets = [set() for _ in range(no_sets)]
+        if mode:
+            self.sets = [set() for _ in range(no_sets)]
+        else:
+            self.sets = [set()]
         self.no_sets = no_sets
         self._construct_bloom = _construct_bloom
         self.bloom = self._construct_bloom()
@@ -202,7 +205,8 @@ class Filter(tk.Frame):
         self.clear.grid(row=2, column=3*length//4, columnspan=length//4,
                         sticky=tk.S)
         self.string_generator = utils.RandomStringGenerator(string_length=...)
-        self.generate_button = tk.Button(self,text="Generate random element", command=self._generate_string)
+        self.generate_button = tk.Button(self,text="Generate random element",
+                                         command=self._generate_string)
         self.generate_button.grid(row=3,columnspan=length)
         for i, value in enumerate(self.bloom):
             color = COLOR_PALLETTE.GREEN
@@ -354,7 +358,8 @@ class Main(tk.Tk):
     """
 
     def __init__(self, title="ShiftingBloomFilter Visualiser", length=25,
-                 hash_count=None, hash_source=None, bloom=None, deepcopy=True):
+                 hash_count=None, hash_source=None, bloom=None, deepcopy=True,
+                 mode=MULTIPLE,no_sets=10):
         """
             Main(
                 title  => title for visualiser window
@@ -378,7 +383,7 @@ class Main(tk.Tk):
         self.filter = Filter(self, out=self.out, options=self.options,
                              length=length, hash_source=hash_source,
                              hash_count=hash_count, bloom=bloom,
-                             deepcopy=deepcopy)
+                             deepcopy=deepcopy, mode=mode, no_sets=no_sets)
         self.info = Info(self, options=self.options)
         self.sets = SetDisplay(self)
         self.filter.grid(row=0, column=1, sticky=tk.N+tk.S)
