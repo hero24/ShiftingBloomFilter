@@ -304,7 +304,9 @@ class Filter(tk.Frame):
         self.refresh()
         self.current_element = self.entry.get()
         is_in, set_ids = self.bloom.check(self.current_element)
-        self.out.set_out("Item is %sin the set" % ("" if is_in else "not "))
+        self.out.set_out("Item is %sin the set. %s" % (("" if is_in else "not "),
+            ("" if self.mode else "There are %i copies of element" % set_ids)
+        ))
         self.master.sets.highlight(set_ids,self.current_element)
         if is_in:
             hash_func = self.bloom.hashfunc
