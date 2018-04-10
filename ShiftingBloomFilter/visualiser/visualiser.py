@@ -218,6 +218,8 @@ class Filter(tk.Frame):
         """
             (void) refreshes (resets) the display of the filter
         """
+        for i, v in enumerate(self.bloom):
+            self._set_cell(i, v, (COLOR_PALLETTE.GREEN, COLOR_PALLETTE.GREEN))
         for i, value in enumerate(self.bloom):
             if value == 1:
                 self._set_cell(i)
