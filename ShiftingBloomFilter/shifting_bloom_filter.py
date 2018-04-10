@@ -2,7 +2,7 @@
 """ Python implementation of shifting bloom filter."""
 
 #"It seems like the right thing to do is tackle problems
-# other people aren't working on" ~Sean Parker 
+# other people aren't working on" ~Sean Parker
 
 import hashlib
 from hashlib import algorithms_guaranteed
@@ -21,7 +21,8 @@ class ShiftingBloomFilter:
     """
 
     def __init__(self, length, hash_source=algorithms_guaranteed,
-             hash_count=None, length_as_power=True, mode=MULTIPLE, set_count=0):
+                 hash_count=None, length_as_power=True, mode=MULTIPLE,
+                 set_count=0):
         """
         ShiftingBlomFilter(
             length => the size of the underlying bytearray which is used to

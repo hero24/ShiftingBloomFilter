@@ -257,7 +257,8 @@ class RandomStringGenerator:
             raise StopIteration
         rand_s = ""
         if self.length is ...:
-            rng = range(randint(RandomStringGenerator.RANDOM_MIN,RandomStringGenerator.RANDOM_MAX))
+            rng = range(randint(RandomStringGenerator.RANDOM_MIN,
+                                RandomStringGenerator.RANDOM_MAX))
         else:
             rng = range(self.length)
         for _ in rng:

@@ -17,7 +17,7 @@ Available constants:
 Available submodules:
 - utils => utilities that can be used with ShiftingBloomFilter
 - visualiser => GUI tool for visualising the filter.
-- exceptions => all possible exceptions that can be thrown by objects in 
+- exceptions => all possible exceptions that can be thrown by objects in
                 this module
 """
 
@@ -25,4 +25,4 @@ from ShiftingBloomFilter.shifting_bloom_filter import ShiftingBloomFilter
 from ShiftingBloomFilter.shifting_bloom_filter import MULTISET, MULTIPLE
 import ShiftingBloomFilter.utils as utils
 import ShiftingBloomFilter.exceptions as exceptions
-__all__ = ["ShiftingBloomFilter","utils", "exceptions","MULTISET","MULTIPLE"]
+__all__ = ["ShiftingBloomFilter", "utils", "exceptions", "MULTISET", "MULTIPLE"]

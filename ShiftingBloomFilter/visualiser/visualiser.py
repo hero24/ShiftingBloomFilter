@@ -14,7 +14,7 @@
 import tkinter as tk
 from collections import OrderedDict
 import copy
-from .. import ShiftingBloomFilter 
+from .. import ShiftingBloomFilter
 from .. import utils
 from .. import MULTIPLE
 
@@ -171,19 +171,18 @@ class Filter(tk.Frame):
                                            hash_source=hash_source,
                                            hash_count=hash_count,
                                            length_as_power=False,
-                                           mode=mode
-                                           )
+                                           mode=mode)
         else:
             def _construct_bloom():
                 return ShiftingBloomFilter(length=length, length_as_power=False,
-                mode=mode
-                )
+                                           mode=mode
+                                          )
         columnspan = length//4
         self.mode = mode
         if self.mode:
             self.selection_var = tk.StringVar(self)
             self.selection_var.set(0)
-            self.sets = [set() for _ in range(no_sets)] 
+            self.sets = [set() for _ in range(no_sets)]
         else:
             self.sets = []
             columnspan = length//3
@@ -197,17 +196,17 @@ class Filter(tk.Frame):
         self.controls = []
         self.controls.append(tk.Button(self, text="Insert", command=self._insert))
         if self.mode:
-            self.controls.append(tk.OptionMenu(self,self.selection_var,
-                        *[str(i) for i,j in enumerate(self.sets)]
-                        ))
+            self.controls.append(tk.OptionMenu(self, self.selection_var,
+                                    *[str(i) for i, j in enumerate(self.sets)]
+                                ))
         self.controls.append(tk.Button(self, text="Check", command=self._check))
-        self.controls.append(tk.Button(self, text="Clear", command=self._clear)) 
+        self.controls.append(tk.Button(self, text="Clear", command=self._clear))
         for i, j in enumerate(self.controls):
-            j.grid(row=2,column=i*columnspan, columnspan=columnspan,sticky=tk.S) 
+            j.grid(row=2, column=i*columnspan, columnspan=columnspan, sticky=tk.S)
         self.string_generator = utils.RandomStringGenerator(string_length=...)
-        self.generate_button = tk.Button(self,text="Generate random element",
+        self.generate_button = tk.Button(self, text="Generate random element",
                                          command=self._generate_string)
-        self.generate_button.grid(row=3,columnspan=length)
+        self.generate_button.grid(row=3, columnspan=length)
         for i, value in enumerate(self.bloom):
             color = COLOR_PALLETTE.GREEN
             label = DLabel(self, background=color, initial_value=value)
@@ -227,9 +226,9 @@ class Filter(tk.Frame):
         """
             [(int)] returns positions of hash offsets for element
         """
-        return [self.bloom._get_hash(func,element,0) 
+        return [self.bloom._get_hash(func, element,0)
                 for func in self.bloom.hashfunc[self.bloom.cut_off:]
-                ]
+               ]
 
     def _set_cell(self, cell_id, value=1,
                   background=DEFAULT_BACKGROUND):
@@ -291,7 +290,7 @@ class Filter(tk.Frame):
         self.bloom = self._construct_bloom()
         for i, value in enumerate(self.bloom):
             self._set_cell(i, value=value, background=(COLOR_PALLETTE.GREEN,
-                                                    COLOR_PALLETTE.GREEN))
+                                                       COLOR_PALLETTE.GREEN))
         self.master.sets.display_set()
 
     def _check(self):
@@ -305,9 +304,9 @@ class Filter(tk.Frame):
         self.current_element = self.entry.get()
         is_in, set_ids = self.bloom.check(self.current_element)
         self.out.set_out("Item is %sin the set. %s" % (("" if is_in else "not "),
-            ("" if self.mode else "There are %i copies of element" % set_ids)
+                ("" if self.mode else "There are %i copies of element" % set_ids)
         ))
-        self.master.sets.highlight(set_ids,self.current_element)
+        self.master.sets.highlight(set_ids, self.current_element)
         if is_in:
             hash_func = self.bloom.hashfunc
             cut_off = self.bloom.cut_off
@@ -324,33 +323,35 @@ class Filter(tk.Frame):
             (callback) (void)
             Generates a random string and inserts it into entry field
         """
-        self.entry.delete(0,tk.END)
-        self.entry.insert(0,next(self.string_generator))
+        self.entry.delete(0, tk.END)
+        self.entry.insert(0, next(self.string_generator))
 
 class SetDisplay(tk.Frame):
     """
         Frame containing contents of sets that are represented by filter.
     """
-    def __init__(self,master,*args):
+    def __init__(self, master, *args):
         """
             SetDisplay(
-                master => parent window 
+                master => parent window
                 *args => any other tk.Frame config arguments
             )
         """
-        super().__init__(master,*args)
+        super().__init__(master, *args)
         self.master = master
-        self.sets = master.filter.sets 
+        self.sets = master.filter.sets
         self.var = tk.StringVar(self)
         self.var.set(0)
         if master.mode:
-            self.menu = tk.OptionMenu(self,self.var,*[str(i) for i,j in enumerate(self.sets)],command=self.display_set)
+            self.menu = tk.OptionMenu(self, self.var,
+            *[str(i) for i,j in enumerate(self.sets)],command=self.display_set
+            )
             self.menu.grid(columnspan=2,sticky=tk.W+tk.E)
         self.list = None
 
-    def highlight(self,set_no, element):
+    def highlight(self, set_no, element):
         """
-            (void) highlights element in set_no unless MULTISET mode, 
+            (void) highlights element in set_no unless MULTISET mode,
             then higlights elements corresponding to element
 
             highlight(
@@ -359,7 +360,7 @@ class SetDisplay(tk.Frame):
             )
         """
         if set_no and self.master.mode:
-            set_no = set_no[0] if int(self.var.get()) not in set_no else self.var.get() 
+            set_no = set_no[0] if int(self.var.get()) not in set_no else self.var.get()
             self.var.set(set_no)
             self.display_set()
         elif set_no:
@@ -367,8 +368,8 @@ class SetDisplay(tk.Frame):
         else:
             self.clear_selection()
             return
-        items = self.list.get(0,self.list.size())
-        for i,j in enumerate(items):
+        items = self.list.get(0, self.list.size())
+        for i, j in enumerate(items):
             if j == element:
                 self.list.selection_set(i)
 
@@ -377,24 +378,24 @@ class SetDisplay(tk.Frame):
             (void) Clears active selection of element
         """
         if self.list:
-            self.list.selection_clear(0,tk.END)
+            self.list.selection_clear(0, tk.END)
     
     def display_set(self, *args):
         """
             (void) displays elements, that are in currently selected set (if MULIPLE mode)
             or just the MULTISET
         """
-        self.sets = self.master.filter.sets 
+        self.sets = self.master.filter.sets
         if self.list:
             self.list.grid_forget()
         self.list = tk.Listbox()
-        self.list.bindtags((self.list,self.master,"all"))
+        self.list.bindtags((self.list, self.master, "all"))
         if self.master.mode:
             id = int(self.var.get())
             self.sets = self.sets[id]
         for elem in self.sets:
-            self.list.insert(tk.END,elem)
-        self.list.grid(columnspan=2,sticky=tk.W+tk.E)
+            self.list.insert(tk.END, elem)
+        self.list.grid(columnspan=2, sticky=tk.W+tk.E)
 
 class Main(tk.Tk):
     """
@@ -403,7 +404,7 @@ class Main(tk.Tk):
 
     def __init__(self, title="ShiftingBloomFilter Visualiser", length=25,
                  hash_count=None, hash_source=None, bloom=None, deepcopy=True,
-                 mode=MULTIPLE,no_sets=10):
+                 mode=MULTIPLE, no_sets=10):
         """
             Main(
                 title  => title for visualiser window
@@ -433,12 +434,12 @@ class Main(tk.Tk):
         self.sets = SetDisplay(self)
         self.filter.grid(row=0, column=1, sticky=tk.N+tk.S)
         self.info.grid(row=0, column=0)
-        self.out.grid(row=1, columnspan=2) 
+        self.out.grid(row=1, columnspan=2)
         self.sets.grid(row=2, columnspan=2, sticky=tk.W+tk.E)
         self.resizable(False, False)
 
     @staticmethod
-    def run(title="ShiftingBloomFilter Visualiser", length=25,mode=MULTIPLE):
+    def run(title="ShiftingBloomFilter Visualiser", length=25, mode=MULTIPLE):
         """
             (static) (void)
             Instanciates main window of visualiser and runs it.
