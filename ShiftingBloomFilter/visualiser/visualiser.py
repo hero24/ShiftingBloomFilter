@@ -77,8 +77,8 @@ class Info(tk.Frame):
     def __init__(self, master, options,
                  color_description=OrderedDict([
                      (COLOR_PALLETTE.GREEN , "Empty field"),
-                     (COLOR_PALLETTE.RED   , "Field occupied"),
-                     (COLOR_PALLETTE.ORANGE, "Field occupied by offset bit"),
+                     (COLOR_PALLETTE.RED   , "Field occupied by offset bit"),
+                     (COLOR_PALLETTE.ORANGE, "Field occupied"),
                      (COLOR_PALLETTE.YELLOW, "Field set"),
                      (COLOR_PALLETTE.PURPLE, "Field set by offset bit")
                  ])):
