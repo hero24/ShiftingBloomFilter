@@ -33,7 +33,7 @@ class ShiftingBloomFilter:
             hash_source => a list of hashing functions to use
             length_as_power => is the length of the filter expressed
                                 as power of 2 (True) or is it literal (False)
-            mode => ASSOCSET if there are multiple sets or MULTISET if its one
+            mode => MULTIPLE if there are multiple sets or MULTISET if its one
                     set but supporting multiple elements.
             set_count => how many sets is this filter supposed to support?
         )
