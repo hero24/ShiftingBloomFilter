@@ -74,6 +74,13 @@ class ShiftingBloomFilter:
         """(int) returns the length of the underlying bytearray"""
         return self.m
 
+    def __bool__(self):
+        """(boolean) returns if the filter is not empty"""
+        for i in self.filter:
+            if i:
+                return True
+        return False
+
     def __str__(self):
         """return string representation of the filter"""
         str_ = ""
