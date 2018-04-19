@@ -8,6 +8,7 @@ import hashlib
 from hashlib import algorithms_guaranteed
 import pickle as pickle
 from sys import byteorder
+import math
 from .exceptions import HashesUnavailableError, ERROR_MSGS
 
 MULTIPLE = True
@@ -65,10 +66,10 @@ class ShiftingBloomFilter:
         self.hashfunc = self.hashfunc[:self.k]
         self.filter = bytearray(self.m)
         self.max_set = set_count
-        self.length = length
         self.length_as_power = length_as_power
         self.hash_source = hash_source
         self.mode = mode
+        self.count = 0
 
     def __len__(self):
         """(int) returns the length of the underlying bytearray"""
@@ -92,7 +93,7 @@ class ShiftingBloomFilter:
     def __repr__(self):
         """return string representation of an object constructor"""
         return "ShiftingBloomFilter(%s, %s, %s, %s, %s, %s)" % (
-            self.length,
+            self.m if not self.length_as_power else int(math.log2(self.m)),
             self.hash_source,
             self.k,
             self.length_as_power,
@@ -161,6 +162,7 @@ class ShiftingBloomFilter:
                 self._insert_at_offset(item, count+1)
             else:
                 self._insert_at_offset(item, 0)
+        self.count += 1
 
     def _insert_at_offset(self, item, offset):
         """
@@ -219,8 +221,18 @@ class ShiftingBloomFilter:
 
     def save2file(self, filename="sbf.bin"):
         """(void) save filter to a binary file"""
+
         with open(filename, "wb") as datafile:
             pickle.dump(self, datafile)
+
+    def get_fpr(self):
+        """
+            (Number) returns false positve rate for current state
+            of the filter
+        """
+        p = math.e ** ((-self.count * self.k)/len(self))
+        fpr = ((1-p)**(self.k/2)) * (1 - p + (1/(self.max_set+1)) * (p**2))
+        return fpr
 
     @staticmethod
     def load_from_file(filename="sbf.bin"):
