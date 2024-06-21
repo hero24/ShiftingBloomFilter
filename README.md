@@ -6,6 +6,13 @@ Bloom filter is a probabilistic test data structure that returns False if an obj
 ## Library description
 This library is made up of 4 submodules, namely the `ShiftingBloomFilter` which contains the Shifting Bloom filter it self, `utils` which contains a set of utilities that are useful while using the set, `exceptions` which contain the exceptions associated with the bloom filter and visualiser which contains a graphic tool that can be used to inspect the filter.
 
+## Installation
+
+Library can be pip-installed just like this:
+```
+pip3 install ShiftingBloomFilter
+````
+
 ## API description
 
 ### `ShiftingBloomFilter`
